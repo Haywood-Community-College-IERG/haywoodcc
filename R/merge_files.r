@@ -10,6 +10,8 @@
 #' @param FNvar The name of the variable which will contain the filename. Will only add filename if this parameter has a variable name.
 #' @keywords file
 #' @export
+#' @importFrom dplyr bind_rows
+#'
 merge_files <- function( path=getwd(), pattern="*", type="csv", FNvar="",
                         col_types=cols(.default=col_character()), ... ) {
     if (type=="csv") {
@@ -37,5 +39,5 @@ merge_files <- function( path=getwd(), pattern="*", type="csv", FNvar="",
                       full.names  = TRUE,
                       ignore.case = TRUE ) %>%
           lapply(readfun,col_types=col_types, ...) %>%
-          dplyr::bind_rows
+          bind_rows
 }

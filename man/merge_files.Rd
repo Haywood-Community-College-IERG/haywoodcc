@@ -17,8 +17,8 @@ merge_files(path = getwd(), pattern = "*", type = "csv", FNvar = "",
 \item{FNvar}{The name of the variable which will contain the filename. Will only add filename if this parameter has a variable name.}
 }
 \description{
-This function allows you to merge all the files in a specified folder. 
-It handles removing the extra header lines, if necessary. It also 
+This function allows you to merge all the files in a specified folder.
+It handles removing the extra header lines, if necessary. It also
 adds the file name as an extra variable, if this is necessary.
 }
 \keyword{file}

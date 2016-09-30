@@ -2,3 +2,4 @@
 
 export(merge_files)
 export(term_code)
+importFrom(dplyr,bind_rows)
