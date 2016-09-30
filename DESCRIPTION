@@ -5,7 +5,11 @@ Authors@R: person("David", "Onder", email = "donder@haywood.edu", role = c("aut"
 Description: Collection of functions to manage and process data at Haywood Community College (HCC). These functions make it possible to manipulate data meeting the formatting as specified by the North Carolina Community College System Office.
 Depends:
     R (>= 3.3.1)
-License: What license is it under?
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 5.0.1
+Imports:
+    tidyverse (>=1.0.0)
+Suggests:
+    magrittr (>=1.5)
