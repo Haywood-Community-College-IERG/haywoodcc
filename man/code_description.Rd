@@ -12,6 +12,7 @@ code_description(variable, code)
 \item{code}{The coded value to convert}
 }
 \description{
-Convert a code to its corresponding description.
+Convert a code used in North Carolina Community College System files to
+its corresponding description.
 }
 

@@ -1,6 +1,7 @@
 #' Convert code to description
 #'
-#' Convert a code to its corresponding description.
+#' Convert a code used in North Carolina Community College System files to
+#' its corresponding description.
 #'
 #' @param variable Which variable to convert
 #' @param code The coded value to convert
