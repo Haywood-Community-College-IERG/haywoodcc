@@ -34,7 +34,7 @@ nsc_request <- function(df,
     }
 
     if ( "SSN" %in% colnames(df) &
-         (inquiryType!="PA" | (inquiryType=="PA" & enrolledStudents==FALSE)) ) {
+         (inquiryType!="PA" | (inquiryType=="PA" & enrolledStudents==TRUE)) ) {
         warning(paste0("SSN provided but ignored - iquiry(",inquiryType,"), enrolled(",enrolledStudents,")"))
     }
 
