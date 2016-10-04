@@ -1,4 +1,4 @@
-Package: hcc
+Package: haywoodcc
 Title: Collection of functions for use at Haywood Community College (HCC)
 Version: 0.0.0.9000
 Authors@R: person("David", "Onder", email = "donder@haywood.edu", role = c("aut", "cre"))

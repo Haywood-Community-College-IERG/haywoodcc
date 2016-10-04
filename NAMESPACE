@@ -2,7 +2,8 @@
 
 export(code_description)
 export(merge_files)
-export(nsc_return_convert)
+export(nsc_request_se)
+export(nsc_return_se_convert)
 export(term_code)
 importFrom(dplyr,bind_rows)
 importFrom(dplyr,case_when)

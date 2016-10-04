@@ -13,15 +13,12 @@
 #' @importFrom tidyr fill
 #' @importFrom magrittr %<>%
 #'
-nsc_return_convert <- function(fn) {
+nsc_return_se_convert <- function(fn) {
 
     # Load the specified file into a dataframe
     students <- tibble::as_data_frame(
         readr::read_csv(fn, col_types=readr::cols(.default=readr::col_character()))
         )
-
-    #students.sav <- students
-    #students <- students.sav
 
     # get students with no activity into no_act, remove from students
     no_act <- students %>% dplyr::filter( `Record Found Y/N`=='N' )
