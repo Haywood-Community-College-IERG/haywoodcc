@@ -33,8 +33,9 @@ nsc_request <- function(df,
         stop("Dataframe does not include all of the required fields: FirstName, LastName, DOB")
     }
 
-    if (!(inquiryType=="PA" & enrolledStudents==FALSE & "SSN" %in% colnames(df))) {
-        warning("SSN provided - Not valid in SE request and will be ignored")
+    if ( "SSN" %in% colnames(df) &
+         (inquiryType!="PA" | (inquiryType=="PA" & enrolledStudents==FALSE)) ) {
+        warning(paste0("SSN provided but ignored - iquiry(",inquiryType,"), enrolled(",enrolledStudents,")"))
     }
 
     if (missing(path)) {
