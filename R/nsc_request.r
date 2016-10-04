@@ -1,11 +1,12 @@
 #' Create a National Student Clearinghouse request file
 #'
-#' Create a National Student Clearinghouse request file in the required format. 
-#' This requires a config file which contains required elements. 
+#' Create a National Student Clearinghouse request file in the required format.
+#' This requires a config file which contains required elements.
 #' DOB must be either a date or a character string with format "%Y%m%d".
 #'
 #' @param df Dataframe to convert into format for submission to NSC
 #' @param config A configuration dataframe for NSC files
+#' @param inquiryType One of CO (Longitudinal Cohort), DA (Declined Admission), PA (Prior Attendance), or SE (Subsequent Enrollment)
 #' @param path Path where NSC file will be saved (default=getwd())
 #' @param fn Name of the NSC file (default=same name as the dataframe with "_SE.tsv" appended)
 #' @param search If the dataframe does not include a 'Search Begin Date' field, this will be used (default=TODAY)
@@ -32,7 +33,7 @@ nsc_request <- function(df,
         stop("Dataframe does not include all of the required fields: FirstName, LastName, DOB")
     }
 
-    if ("SSN" %in% colnames(df)) {
+    if (!(inquiryType=="PA" & enrolledStudents==FALSE & "SSN" %in% colnames(df))) {
         warning("SSN provided - Not valid in SE request and will be ignored")
     }
 
@@ -76,20 +77,20 @@ nsc_request <- function(df,
     # Allow this to be overridden for PA query of non-enrolled students
     if (inquiryType=="PA" & enrolledStudents==FALSE & "SSN" %in% colnames(df))
         r$SSN <- df$SSN
-    else 
+    else
         r$SSN <- trimws("         ") # SSN cannot be provided in SE request
 
     clean <- function(x) iconv(x,,to="ASCII//TRANSLIT")
-    
+
     r$FirstName <- trimws(substring(format(clean(df$FirstName),width=20),1,20))
-    
+
     if ("MiddleInitial" %in% colnames(df))
         r$MI <- dplyr::coalesce(substring(clean(df$MiddleInitial),1,1),"")
     else
         r$MI <- trimws(" ")
-    
+
     r$LastName <- trimws(substring(format(clean(df$LastName),width=20),1,20))
-    
+
     if ("Suffix" %in% colnames(df))
         r$Suffix <- trimws(substring(format(clean(df$Suffix),width=5),1,5))
     else
