@@ -17,16 +17,16 @@ nsc_return_se_convert <- function(fn) {
 
     # Load the specified file into a dataframe
     students <- tibble::as_data_frame(
-        readr::read_csv(fn, col_types=readr::cols(.default=readr::col_character()))
+        readr::read_csv(fn, col_types=readr::cols(.default = readr::col_character()))
         )
 
     # get students with no activity into no_act, remove from students
-    no_act <- students %>% dplyr::filter( `Record Found Y/N`=='N' ) %>%
+    no_act <- students %>% dplyr::filter( `Record Found Y/N` == 'N' ) %>%
         # Remove graduation columns - they will be added back later
         dplyr::select( -`Graduated?`, -`Graduation Date`, -starts_with("Degree") )
 
     # ...For the rest, convert the dates into dates
-    students %<>% dplyr::filter( `Record Found Y/N`=='Y' ) %>%
+    students %<>% dplyr::filter( `Record Found Y/N` == 'Y' ) %>%
         dplyr::mutate( `Enrollment Begin` = as.Date( `Enrollment Begin`, "%Y%m%d" ),
                        `Enrollment End` = as.Date( `Enrollment End`, "%Y%m%d" ),
                        `Enrollment Days` = `Enrollment End` - `Enrollment Begin`
@@ -35,7 +35,7 @@ nsc_return_se_convert <- function(fn) {
     # Fix the graduation records
     graduated <- students %>%
         # Now keep only the graduated records
-        dplyr::filter( `Graduated?`=='Y' ) %>%
+        dplyr::filter( `Graduated?` == 'Y' ) %>%
         dplyr::select( `Last Name`, `First Name`, `Middle Initial`, `Name Suffix`, `College Sequence`,
                        `Graduated?`, `Graduation Date`, `Degree Title`,
                        `Degree Major 1`, `Degree CIP 1`,
@@ -43,17 +43,17 @@ nsc_return_se_convert <- function(fn) {
                        `Degree Major 3`, `Degree CIP 3`,
                        `Degree Major 4`, `Degree CIP 4`
                      ) %>%
-        dplyr::mutate( `Degree Title`=ifelse(is.na(`Degree Title`),"UNKNOWN",`Degree Title`),
-                       `Degree Major 1`=ifelse(is.na(`Degree Major 1`),"UNKNOWN",`Degree Major 1`),
-                       `Degree CIP 1`=ifelse(is.na(`Degree CIP 1`),"UNKNOWN",`Degree CIP 1`)
+        dplyr::mutate( `Degree Title` = ifelse(is.na(`Degree Title`), "UNKNOWN", `Degree Title`),
+                       `Degree Major 1` = ifelse(is.na(`Degree Major 1`), "UNKNOWN", `Degree Major 1`),
+                       `Degree CIP 1` = ifelse(is.na(`Degree CIP 1`), "UNKNOWN", `Degree CIP 1`)
                      )
 
     # Remove graduation records as they were handled above
-    students %<>% dplyr::filter( `Graduated?`=='N' ) %>%
+    students %<>% dplyr::filter( `Graduated?` == 'N' ) %>%
         # Remove graduation columns - they will be added back later
-        dplyr::select( -`Graduated?`, -`Graduation Date`, -starts_with("Degree") ) %>%
+        dplyr::select( -`Graduated?`, -`Graduation Date`, -dplyr::starts_with("Degree") ) %>%
         # Add a row index
-        dplyr::mutate( RowNumber = row_number() ) %>%
+        dplyr::mutate( RowNumber = dplyr::row_number() ) %>%
         #
         # We need to fill down the CollegeSequence value since it is missing for
         #    subsequent records
@@ -68,14 +68,14 @@ nsc_return_se_convert <- function(fn) {
                          `College Sequence`
                          ) %>%
         dplyr::mutate( `Semesters at Institution` = n(),
-                       SemesterIndex = row_number(),
-                       `Enrollment Begin`=min(`Enrollment Begin`),
-                       `Enrollment End`=max(`Enrollment End`),
-                       `Total Enrollment Days`=sum(`Enrollment Days`),
-                       `Last Enrollment Major 1` = last(`Enrollment Major 1`),
-                       `Last Enrollment CIP 1` = last(`Enrollment CIP 1`),
-                       `Last Enrollment Major 2` = last(`Enrollment Major 2`),
-                       `Last Enrollment CIP 2` = last(`Enrollment CIP 2`)
+                       SemesterIndex = dplyr::row_number(),
+                       `Enrollment Begin` = min(`Enrollment Begin`),
+                       `Enrollment End` = max(`Enrollment End`),
+                       `Total Enrollment Days` = sum(`Enrollment Days`),
+                       `Last Enrollment Major 1` = dplyr::last(`Enrollment Major 1`),
+                       `Last Enrollment CIP 1` = dplyr::last(`Enrollment CIP 1`),
+                       `Last Enrollment Major 2` = dplyr::last(`Enrollment Major 2`),
+                       `Last Enrollment CIP 2` = dplyr::last(`Enrollment CIP 2`)
                        ) %>%
         dplyr::filter(SemesterIndex == 1) %>%
         #dplyr::filter( RowNumber==max(RowNumber) ) %>%
@@ -88,9 +88,9 @@ nsc_return_se_convert <- function(fn) {
         dplyr::bind_rows(no_act) %>%
         # Bring in graduation data
         dplyr::left_join(graduated,
-                         by=c("Last Name", "First Name", "Middle Initial", "Name Suffix", "College Sequence")
+                         by = c("Last Name", "First Name", "Middle Initial", "Name Suffix", "College Sequence")
                         ) %>%
-        dplyr::mutate( `Graduated?`=ifelse(is.na(`Graduated?`),"N",`Graduated?`)) %>%
+        dplyr::mutate( `Graduated?` = ifelse(is.na(`Graduated?`), "N", `Graduated?`)) %>%
         dplyr::arrange( `Last Name`, `First Name`, `Middle Initial`, `Name Suffix`,
                  `Requester Return Field`,
                  `College Sequence`

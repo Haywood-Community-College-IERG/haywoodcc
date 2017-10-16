@@ -9,12 +9,11 @@
 #' @export
 code_description <- function(variable, code) {
     switch( LowerCase(variable),
-            course_status, return( switch( code,
-                                           "P", "Passed (C or better)",
-                                           "F", "Failed (less than a C)",
-                                           "A", "Attempted but not completed",
-                                           "Never Taken"
-                                           )
-                                  )
+            course_status = switch( code,
+                                    "P" = "Passed (C or better)",
+                                    "F" = "Failed (less than a C)",
+                                    "A" = "Attempted but not completed",
+                                    "Never Taken"
+                                    )
             )
 }

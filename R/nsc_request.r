@@ -44,12 +44,17 @@ nsc_request <- function(df,
     }
 
     # If search is just YYYY, set to YYYY0101, if just YYYYMM, set to YYYYMM01.
-    if (nchar(search)==4) {
+    if (nchar(search) == 4) {
         search %<>% paste0("0101")
-        warning(paste("search changed to",search))
-    } else if (nchar(search)==6) {
+        warning(paste("search changed to", search))
+    } else if (nchar(search) == 6) {
         search %<>% paste0("01")
-        warning(paste("search changed to",search))
+        warning(paste("search changed to", search))
+    } else if (nchar(search) == 7) {
+        search <- str_c( substr(search, 1, 4),
+                         substr(search, 6, 7),
+                         paste0("01") )
+        warning(paste("search changed to", search))
     }
 
     if (missing(fn)) {
@@ -60,60 +65,70 @@ nsc_request <- function(df,
 
     nscFile <- file.path(path,fn)
 
-    # Check if the following optional fields are provided:
-    #     SearchBeginDate, ReturnRequestField
-    if (!("SearchBeginDate" %in% colnames(df))) {
-        warning(paste("SearchBeginDate not provided - defaulting to",search))
-    }
-
-    if (!("ReturnRequestField" %in% colnames(df))) {
-        warning("ReturnRequestField not provided - you may have difficulty matching return records")
-    }
-
     # Ensure DOB is a date formatted as YYYYMMDD
 
     # Ensure all fields are padded to the correct lengths and create 'nsc' dataframe
     r <- data.frame( a = 1:length(df$FirstName) )
     r$RecordType <- "D1"
     # Allow this to be overridden for PA query of non-enrolled students
-    if (inquiryType=="PA" & enrolledStudents==FALSE & "SSN" %in% colnames(df))
+    if (inquiryType=="PA" & enrolledStudents==FALSE & "SSN" %in% colnames(df)) {
         r$SSN <- df$SSN
-    else
-        r$SSN <- trimws("         ") # SSN cannot be provided in SE request
+    } else {
+        r$SSN <- trimws("         ") # SSN cannot be provided in SE request, or
+                                     # on PA requests for enrolled students
+    }
 
     clean <- function(x) iconv(x,,to="ASCII//TRANSLIT")
 
     r$FirstName <- trimws(substring(format(clean(df$FirstName),width=20),1,20))
 
-    if ("MiddleInitial" %in% colnames(df))
+    if ("MiddleInitial" %in% colnames(df)) {
         r$MI <- dplyr::coalesce(substring(clean(df$MiddleInitial),1,1),"")
-    else
+    } else {
         r$MI <- trimws(" ")
+    }
 
     r$LastName <- trimws(substring(format(clean(df$LastName),width=20),1,20))
 
-    if ("Suffix" %in% colnames(df))
+    if ("Suffix" %in% colnames(df)) {
         r$Suffix <- trimws(substring(format(clean(df$Suffix),width=5),1,5))
-    else
+    } else {
         r$Suffix <- trimws("     ")
+    }
 
-    if (class(df$DOB)=="Date")
+    if (class(df$DOB)=="Date") {
         r$DOB <- format(df$DOB,"%Y%m%d")
-    else
+    } else {
         r$DOB <- df$DOB
-
-    r$SearchBeginDate <- ifelse( !("SearchBeginDate" %in% colnames(df)),
-                                   search, dplyr::coalesce(df$SearchBeginDate,search)
-                                   )
+    }
+    
+    # Check if the following optional fields are provided:
+    #     SearchBeginDate, ReturnRequestField
+    if (!("ReturnRequestField" %in% colnames(df))) {
+        warning("ReturnRequestField not provided - you may have difficulty matching return records")
+    }
+    
+    if (!("SearchBeginDate" %in% colnames(df))) {
+        r$SearchBeginDate <- search
+        warning(paste("SearchBeginDate not provided - defaulting to",search))
+    } else {
+        if (class(df$SearchBeginDate)=="Date") {
+            r$SearchBeginDate <- format(df$SearchBeginDate,"%Y%m%d")
+        } else {
+            r$SearchBeginDate <- df$SearchBeginDate
+        }
+    }
+    
     r$Blank <- trimws(" ")
 
     r$SchoolCode <- config$schoolCode
     r$BranchCode <- config$branchCode
 
-    if ("ReturnRequestField" %in% colnames(df))
+    if ("ReturnRequestField" %in% colnames(df)) {
         r$ReturnRequestField <- trimws(format(df$ReturnRequestField,width=50))
-    else
+    } else {
         r$ReturnRequestField <- trimws(format(" ",width=50))
+    }
 
     r$a<-NULL
 
@@ -129,9 +144,9 @@ nsc_request <- function(df,
     t <- data.frame("T1",as.character(nrow(r)+2,0), stringsAsFactors = FALSE)
 
     # Write out the file
-    readr::write_tsv(h,path=nscFile,append=FALSE,col_names=FALSE)
-    readr::write_tsv(r,path=nscFile,append=TRUE,col_names=FALSE)
-    readr::write_tsv(t,path=nscFile,append=TRUE,col_names=FALSE)
+    readr::write_tsv(h, path=nscFile, append=FALSE, col_names=FALSE, na="NA")
+    readr::write_tsv(r, path=nscFile, append=TRUE,  col_names=FALSE, na="NA")
+    readr::write_tsv(t, path=nscFile, append=TRUE,  col_names=FALSE, na="NA")
 
     return(r)
 }
