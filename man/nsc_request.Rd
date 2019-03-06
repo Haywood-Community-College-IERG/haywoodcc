@@ -14,6 +14,8 @@ nsc_request(df, config, inquiryType = "SE", path = getwd(),
 
 \item{config}{A configuration dataframe for NSC files}
 
+\item{inquiryType}{One of CO (Longitudinal Cohort), DA (Declined Admission), PA (Prior Attendance), or SE (Subsequent Enrollment)}
+
 \item{path}{Path where NSC file will be saved (default=getwd())}
 
 \item{fn}{Name of the NSC file (default=same name as the dataframe with "_SE.tsv" appended)}
@@ -23,8 +25,7 @@ nsc_request(df, config, inquiryType = "SE", path = getwd(),
 \item{enrolledStudents}{Are these students currently enrolled? Set to FALSE for PA query to allow SSN.}
 }
 \description{
-Create a National Student Clearinghouse request file in the required format. 
-This requires a config file which contains required elements. 
+Create a National Student Clearinghouse request file in the required format.
+This requires a config file which contains required elements.
 DOB must be either a date or a character string with format "%Y%m%d".
 }
-

@@ -12,14 +12,22 @@
 #' @export
 #' @importFrom dplyr bind_rows
 #'
-merge_files <- function( path=getwd(), pattern="*", type="csv", FNvar="",
+merge_files <- function( path=getwd(), pattern="*", type="csv", FNvar="", FUN="",
                         col_types=cols(.default=col_character()), ... ) {
-    if (type=="csv") {
-        readfile <- readr::read_csv
-    } else if (type=="fixed") {
-        readfile <- readr::read_fwf
+    useColTypes <- FALSE
+
+    if (!is.function(match.fun(FUN, descend=FALSE))) {
+        if (type=="csv") {
+            readfile <- readr::read_csv
+            useColTypes <- TRUE
+        } else if (type=="fixed") {
+            readfile <- readr::read_fwf
+            useColTypes <- TRUE
+        } else {
+            readfile <- readr::read_lines
+        }
     } else {
-        readfile <- readr::read_lines
+        readfile = match.fun(FUN, descend=FALSE)
     }
 
     readfile_addFileName <- function(.file, ...) {
@@ -34,10 +42,21 @@ merge_files <- function( path=getwd(), pattern="*", type="csv", FNvar="",
         readfun <- readfile
     }
 
-    df <- list.files( path        = path,
-                      pattern     = pattern,
-                      full.names  = TRUE,
-                      ignore.case = TRUE ) %>%
-          lapply(readfun,col_types=col_types, ...) %>%
-          bind_rows
+    if (useColTypes) {
+        df <- list.files( path        = path,
+                          pattern     = pattern,
+                          full.names  = TRUE,
+                          ignore.case = TRUE ) %>%
+            lapply(readfun,col_types=col_types, ...) %>%
+            bind_rows
+    } else {
+        df <- list.files( path        = path,
+                          pattern     = pattern,
+                          full.names  = TRUE,
+                          ignore.case = TRUE ) %>%
+              lapply(readfun, ...) %>%
+              bind_rows
+    }
+
+    df
 }

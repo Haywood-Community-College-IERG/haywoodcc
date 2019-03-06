@@ -12,4 +12,3 @@ term_code(termseq)
 \description{
 Convert term sequence to term code.
 }
-
