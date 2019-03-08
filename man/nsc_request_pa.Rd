@@ -5,7 +5,7 @@
 \title{Create a National Student Clearinghouse Prior Attendance (PA) request file}
 \usage{
 nsc_request_pa(df, config, path = getwd(),
-  fn = paste0(deparse(substitute(df)), "_SE.tsv"),
+  fn = paste0(deparse(substitute(df)), "_PA.tsv"),
   search = format(Sys.Date(), "\%Y\%m\%d"), enrolledStudents = TRUE)
 }
 \arguments{

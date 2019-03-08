@@ -1,10 +1,10 @@
-ir_root <- "L:/IERG"
+pkg.env <- new.env(parent = emptyenv())
 
-ipeds_cfg <- yaml.load_file(file.path(ir_root, "Data/config.yml"))
-ipeds_scripts_path <- ipeds_cfg$R$scripts_path
-source(file.path(ipeds_scripts_path, "ccp.r"))
+pkg.env$ir_root <- "L:/IERG"
+pkg.env$cfg <- yaml::yaml.load_file(file.path(pkg.env$ir_root, "Data/config.yml"))
 
-ipeds_path <- file.path(ir_root, "Data", "IPEDS")
+pkg.env$ipeds_scripts_path <- pkg.env$cfg$R$scripts_path
+pkg.env$ipeds_path <- file.path(pkg.env$ir_root, "Data", "IPEDS")
 
 #' Return enrollment for specified term as of the IPEDS reporting date of October 15
 #'
@@ -13,7 +13,9 @@ ipeds_path <- file.path(ir_root, "Data", "IPEDS")
 #' @param report_year The starting year of the academic year of the data
 #' @param report_semesters Either a single semester abbreviation or a list of semester abbreviations. If unspecified, all semesters are returned.
 #' @export
-#' @importFrom magrittr %<>%
+#' @import magrittr
+#' @import dplyr
+#' @import stringr
 #'
 term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
 
@@ -32,7 +34,7 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
 
     reporting_terms <- terms %>%
         filter( Term_Reporting_Year == report_year )
-    
+
     if (!is.na(report_semesters)) {
         if (length(report_semesters) == 1) {
             reporting_terms %<>%
@@ -45,7 +47,7 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
 
 
     student_acad_cred <- getColleagueData( "STUDENT_ACAD_CRED", version="previous" ) %>%
-        filter( STC.ACAD.LEVEL == "CU", 
+        filter( STC.ACAD.LEVEL == "CU",
                 STC.CRED > 0 ) %>%
         select( ID = STC.PERSON.ID,
                 Term_ID = STC.TERM,
@@ -71,7 +73,7 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
         summarise( EffectiveDatetime = max(EffectiveDatetime) )
 
     #
-    # Now get the course data for the latest courses. 
+    # Now get the course data for the latest courses.
     # Use Status of A,N for FA since we want only enrolled courses at the cutoff date
     # Use Status A,N,W for SP,SU since these were all the courses enrolled in at census
     #
@@ -120,7 +122,7 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     sac_most_recent_distance_ids <- sac_most_recent_1_distance_ids %>%
         left_join( sac_most_recent_all_distance_ids ) %>%
         mutate( Distance_Courses = coalesce(Distance_Courses,"At least 1") )
-        
+
     #
     # Now create a summary table to calculate load by term
     #
@@ -138,7 +140,7 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     # Take term load table and reduce to the reporting terms
     #
     sac_report_load_by_term <- sac_load_by_term %>%
-        inner_join( reporting_terms %>% select( Term_ID, Term_Reporting_Year ) ) 
+        inner_join( reporting_terms %>% select( Term_ID, Term_Reporting_Year ) )
 
     return( sac_report_load_by_term )
 }
@@ -165,6 +167,7 @@ fall_enrollment <- function( report_year ) {
 #' @importFrom magrittr %<>%
 #'
 credential_seekers <- function( report_year, report_semesters = NA_character_, exclude_hs = FALSE ) {
+    source(file.path(pkg.env$ipeds_scripts_path, "ccp.r"))
 
     terms <- getColleagueData( "Term_CU", schema = "dw_dim" ) %>%
         select( Term_ID,
@@ -195,7 +198,7 @@ credential_seekers <- function( report_year, report_semesters = NA_character_, e
     student_programs__dates <- getColleagueData( "STUDENT_PROGRAMS__STPR_DATES", version="history" ) %>%
         select( ID = STPR.STUDENT, Program = STPR.ACAD.PROGRAM, Program_Start_Date = STPR.START.DATE, Program_End_Date = STPR.END.DATE, EffectiveDatetime ) %>%
         filter( !(Program %in% c('BSP', 'AHS', 'CONED', '=GED', '=HISET', 'C11', 'C50')) ) %>%
-        collect() %>%        
+        collect() %>%
         mutate( Program_End_Date = coalesce(Program_End_Date,as.Date('9999-12-31')) )
 
     if (exclude_hs) {
@@ -211,14 +214,14 @@ credential_seekers <- function( report_year, report_semesters = NA_character_, e
         collect() %>%
         inner_join( student_programs__dates ) %>%
         select( -EffectiveDatetime ) %>%
-        
+
         # Identify credential seekers.
         mutate( Credential_Seeker = case_when(
                     substring(Program,1,1) %in% c("A","D","C") ~ 1,
                     TRUE ~ 0
-                ), 
+                ),
                 j = 1 ) %>%
-        
+
         # Cross join with terms to get all the terms they were enrolled in this credential program.
         full_join( terms %>% select(Term_ID, Term_Start_Date, Term_Census_Date, Term_End_Date) %>% mutate(j=1) ) %>%
         filter( Program_Start_Date <= Term_Census_Date,
@@ -246,17 +249,17 @@ fall_credential_seekers <- function( report_year, exclude_hs = FALSE ) {
 
 #' Return a data from of the IPEDS cohort data.
 #'
-#' Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv of 
+#' Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv of
 #' from the IERG SQL Server database.
 #'
 #' @param report_year The year of the fall term for the data
-#' @param cohorts Which cohorts to include in data frame. FT = Full-time First-time, PT = Part-time First-time, 
-#'                TF = Full-time Transfer, TP = Part-time Transfer, 
+#' @param cohorts Which cohorts to include in data frame. FT = Full-time First-time, PT = Part-time First-time,
+#'                TF = Full-time Transfer, TP = Part-time Transfer,
 #'                RF = Full-time Returning, RP = Part-time Returning
 #' @export
 #'
 ipeds_cohort <- function( report_year, cohorts=c("FT","PT","TF","TP","RF","RP") ) {
-    
+
     report_cohorts <- ""
     if (purrr::has_element(cohorts,"FT")) report_cohorts <- c(report_cohorts, str_c(report_year,"FT"))
     if (purrr::has_element(cohorts,"PT")) report_cohorts <- c(report_cohorts, str_c(report_year,"PT"))
@@ -269,7 +272,7 @@ ipeds_cohort <- function( report_year, cohorts=c("FT","PT","TF","TP","RF","RP") 
     ipeds_cohort_FILE_COHORTS <- read_csv( file.path(ipeds_path,"ipeds_cohorts.csv"), col_types = cols(.default=col_character()) ) %>%
         filter( Cohort %in% c(report_cohorts) ) %>%
         select( ID, Term_ID, Cohort )
-    
+
     ipeds_cohort_COLLEAGUE_COHORTS <- getColleagueData( "STUDENT_TERMS" ) %>%
         select( ID = STTR.STUDENT, Cohort = STTR.FED.COHORT.GROUP ) %>%
         filter( Cohort %in% c(report_cohorts) ) %>%
@@ -279,6 +282,6 @@ ipeds_cohort <- function( report_year, cohorts=c("FT","PT","TF","TP","RF","RP") 
 
     ic <- ipeds_cohort_FILE_COHORTS %>%
         bind_rows( ipeds_cohort_COLLEAGUE_COHORTS )
-    
+
     return( ic )
 }

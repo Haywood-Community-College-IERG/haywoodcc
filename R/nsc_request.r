@@ -13,6 +13,8 @@
 #' @param enrolledStudents Are these students currently enrolled? Set to FALSE for PA query to allow SSN.
 #' @export
 #' @importFrom magrittr %<>%
+#' @importFrom base %in% missing any paste0 paste getwd nchar deparse substitute file.path iconv trimws substring format clean
+#' @importFrom stringr str_c
 #'
 nsc_request <- function(df,
                         config,
