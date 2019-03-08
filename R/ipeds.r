@@ -167,7 +167,7 @@ fall_enrollment <- function( report_year ) {
 #' @importFrom magrittr %<>%
 #'
 credential_seekers <- function( report_year, report_semesters = NA_character_, exclude_hs = FALSE ) {
-    source(file.path(pkg.env$ipeds_scripts_path, "ccp.r"))
+    ccp_programs <- get_ccp_programs()
 
     terms <- getColleagueData( "Term_CU", schema = "dw_dim" ) %>%
         select( Term_ID,

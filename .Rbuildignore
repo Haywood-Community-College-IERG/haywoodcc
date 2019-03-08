@@ -1,2 +1,11 @@
+^pkgdown$
+^_pkgdown\.yml$
+^docs$
+^CRAN-RELEASE$
+^\.github$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^data-raw$
+^cran-comments\.md$
+^\.travis\.yml$
+^revdep$
