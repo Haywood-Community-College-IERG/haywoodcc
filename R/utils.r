@@ -76,7 +76,7 @@ age <- function(from, to) {
 
 }
 
-#' Just another name for `%like any%`.
+#' Just another name for \%like any\%.
 #'
 #' @param x Elements to return if it matches any one pattern.
 #' @param pattern Patterns to match.
@@ -87,7 +87,7 @@ age <- function(from, to) {
     return(`%like any%`(x, pattern))
 }
 
-#' The opposite of `%like any%`.
+#' The opposite of \%like any\%.
 #'
 #' @param x Elements to return if it matches any one pattern.
 #' @param pattern Patterns to match.
