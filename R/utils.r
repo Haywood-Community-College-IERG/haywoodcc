@@ -3,7 +3,6 @@
 #' @param x Elements that are not to be found in the List y.
 #' @param y List to check against.
 #' @export
-#' @importFrom base `%in%`
 #'
 "%nin%" <- function(x, y) !(x %in% y)
 
@@ -12,7 +11,6 @@
 #' @param lhs Element to return if it is not null.
 #' @param rhs Element to return if lhs is null.
 #' @export
-#' @importFrom base is.null
 #'
 "%||%" <- function(lhs, rhs) if (!is.null(lhs)) lhs else rhs # From scales/date-time.r
 
@@ -31,7 +29,6 @@ coalesce_blanks <- function( var, default = '' ) {
 #' @param from The birthdate or start date.
 #' @param to The current date or end date.
 #' @export
-#' @importFrom base as.POSIXlt ifelse
 #'
 age <- function(from, to) {
     from_lt = as.POSIXlt(from)
@@ -49,7 +46,6 @@ age <- function(from, to) {
 #' @param x Elements to return if it matches any one pattern.
 #' @param pattern Patterns to match.
 #' @export
-#' @importFrom base sapply substr nchar paste grepl
 #'
 `%like any%` <- function(x, pattern) {
 
@@ -93,4 +89,4 @@ age <- function(from, to) {
 #' @param pattern Patterns to match.
 #' @export
 #'
-`%nlike%` <- function(x, pattern) !(`%like%`(x,pattern))
+`%nlike%` <- function(x, pattern) !`%like%`(x,pattern)
