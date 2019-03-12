@@ -3,7 +3,7 @@
 \docType{data}
 \name{ccp_programs}
 \alias{ccp_programs}
-\title{All current CCP program codes.}
+\title{All current Career and College Promise (CCP) program codes.}
 \format{A data frame with 38 rows and 1 variable:
 \describe{
   \item{Program}{Program code}
@@ -12,6 +12,6 @@
 ccp_programs
 }
 \description{
-A dataset containing the program codes of all active CCP programs.
+A dataset containing the program codes of all active and previous Career and College Promise (CCP) programs.
 }
 \keyword{datasets}
