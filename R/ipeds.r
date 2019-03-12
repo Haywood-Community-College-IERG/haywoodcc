@@ -201,7 +201,7 @@ credential_seekers <- function( report_year, report_semesters = NA_character_, e
         mutate( Program_End_Date = coalesce(Program_End_Date,as.Date('9999-12-31')) )
 
     if (exclude_hs) {
-        student_programs__dates %<>% anti_join( ccp_programs )
+        student_programs__dates %<>% anti_join( high_school_programs )
     }
 
     #
