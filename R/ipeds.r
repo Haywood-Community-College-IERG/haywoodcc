@@ -59,7 +59,9 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
                 Course_Section = STC.SECTION.NO,
                 EffectiveDatetime ) %>%
         collect() %>%
-        inner_join( terms %>% select(Term_ID, Term_Reporting_Year, Semester, Term_Census_Date) ) %>%
+        inner_join( terms %>%
+                        select(Term_ID, Term_Reporting_Year, Semester, Term_Census_Date),
+                    by = "Term_ID" ) %>%
         mutate( Keep_FA = ((Semester == "FA") & (EffectiveDatetime < as.Date(str_c(Term_Reporting_Year,'-10-15')) )),
                 Keep_NF = (Semester != "FA") ) %>%
         filter( Keep_FA | Keep_NF ) %>%
@@ -78,7 +80,8 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     # Use Status A,N,W for SP,SU since these were all the courses enrolled in at census
     #
     sac_most_recent_all <- student_acad_cred %>%
-        inner_join( sac_max_effdt ) %>%
+        inner_join( sac_max_effdt,
+                    by = c("ID", "Term_ID", "Course_ID", "EffectiveDatetime") ) %>%
         mutate( Keep_FA = ((Semester == "FA") & (Course_Status %in% c("A", "N"))),
                 Keep_NF = (Semester != "FA") & (Course_Status %in% c("A", "N", "W")) ) %>%
         filter( Keep_FA | Keep_NF ) %>%
@@ -116,31 +119,33 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
         distinct()
 
     sac_most_recent_all_distance_ids <- sac_most_recent_1_distance_ids %>%
-        anti_join( sac_most_recent_f2f_ids ) %>%
+        anti_join( sac_most_recent_f2f_ids, by = c("ID", "Term_ID") ) %>%
         mutate( Distance_Courses = "All" )
 
     sac_most_recent_distance_ids <- sac_most_recent_1_distance_ids %>%
-        left_join( sac_most_recent_all_distance_ids ) %>%
+        left_join( sac_most_recent_all_distance_ids, by = c("ID", "Term_ID") ) %>%
         mutate( Distance_Courses = coalesce(Distance_Courses,"At least 1") )
 
     #
     # Now create a summary table to calculate load by term
     #
     sac_load_by_term <- sac_most_recent_all %>%
-        inner_join( sac_most_recent_non_dev_ids ) %>%
-        inner_join( terms %>% select( Term_ID, Term_Reporting_Year, Semester ) ) %>%
+        inner_join( sac_most_recent_non_dev_ids, by = c("ID", "Term_ID") ) %>%
+        inner_join( terms %>% select( Term_ID, Term_Reporting_Year, Semester ),
+                    by = c("Term_ID", "Term_Reporting_Year", "Semester") ) %>%
         group_by( ID, Term_ID, Term_Reporting_Year, Semester ) %>%
         summarise( Credits = sum(Credit) ) %>%
         mutate( Status = if_else(Credits >= 12, "FT", "PT") ) %>%
         ungroup() %>%
-        left_join( sac_most_recent_distance_ids ) %>%
+        left_join( sac_most_recent_distance_ids, by = c("ID", "Term_ID") ) %>%
         mutate( Distance_Courses = coalesce(Distance_Courses,"None") )
 
     #
     # Take term load table and reduce to the reporting terms
     #
     sac_report_load_by_term <- sac_load_by_term %>%
-        inner_join( reporting_terms %>% select( Term_ID, Term_Reporting_Year ) )
+        inner_join( reporting_terms %>% select( Term_ID, Term_Reporting_Year ),
+                    by = c("Term_ID", "Term_Reporting_Year") )
 
     return( sac_report_load_by_term )
 }
@@ -201,7 +206,7 @@ credential_seekers <- function( report_year, report_semesters = NA_character_, e
         mutate( Program_End_Date = coalesce(Program_End_Date,as.Date('9999-12-31')) )
 
     if (exclude_hs) {
-        student_programs__dates %<>% anti_join( high_school_programs )
+        student_programs__dates %<>% anti_join( high_school_programs, by = "Program" )
     }
 
     #
@@ -211,7 +216,7 @@ credential_seekers <- function( report_year, report_semesters = NA_character_, e
         select( ID = STPR.STUDENT, Program = STPR.ACAD.PROGRAM, EffectiveDatetime ) %>%
         filter( !(Program %in% c('BSP', 'AHS', 'CONED', '=GED', '=HISET', 'C11', 'C50')) ) %>%
         collect() %>%
-        inner_join( student_programs__dates ) %>%
+        inner_join( student_programs__dates, by = c("ID", "Program", "EffectiveDatetime") ) %>%
         select( -EffectiveDatetime ) %>%
 
         # Identify credential seekers.
@@ -222,13 +227,16 @@ credential_seekers <- function( report_year, report_semesters = NA_character_, e
                 j = 1 ) %>%
 
         # Cross join with terms to get all the terms they were enrolled in this credential program.
-        full_join( terms %>% select(Term_ID, Term_Start_Date, Term_Census_Date, Term_End_Date) %>% mutate(j=1) ) %>%
+        full_join( terms %>%
+                       select(Term_ID, Term_Start_Date, Term_Census_Date, Term_End_Date) %>%
+                       mutate(j=1),
+                   by = "j" ) %>%
         filter( Program_Start_Date <= Term_Census_Date,
                 Program_End_Date >= Term_Census_Date,
                 Credential_Seeker > 0 ) %>%
         select( ID, Term_ID, Credential_Seeker ) %>%
         distinct() %>%
-        inner_join( reporting_terms %>% select(Term_ID) )
+        inner_join( reporting_terms %>% select(Term_ID), by = "Term_ID" )
 
     return( credential_seeking )
 }
