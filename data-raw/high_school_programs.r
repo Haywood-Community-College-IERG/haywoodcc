@@ -10,7 +10,7 @@ ccp_programs <- data.frame( Program = c( "C15200CP", "C150200CP",
                                          "P1012A", "P1012B", "P1012C", "P1042A", "P1042B", "P1042C" ),
                             stringsAsFactors = FALSE )
 
-early_college_programs <- data.frame( Program = c( "A10100EC","T90970EC","T90930" ), stringsAsFactors = FALSE )
+early_college_programs <- data.frame( Program = c( "A10100EC", "A10400EC", "T90970EC", "T90930" ), stringsAsFactors = FALSE )
 
 high_school_programs <- dplyr::bind_rows(ccp_programs, early_college_programs)
 
