@@ -62,7 +62,7 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
         inner_join( terms %>%
                         select(Term_ID, Term_Reporting_Year, Semester, Term_Census_Date),
                     by = "Term_ID" ) %>%
-        mutate( Keep_FA = ((Semester == "FA") & (EffectiveDatetime < as.Date(str_c(Term_Reporting_Year,'-10-15')) )),
+        mutate( Keep_FA = ((Semester == "FA") & (EffectiveDatetime <= as.Date(str_c(Term_Reporting_Year,"-10-15")) )),
                 Keep_NF = (Semester != "FA") ) %>%
         filter( Keep_FA | Keep_NF ) %>%
         select( -c(Keep_FA, Keep_NF) )
@@ -82,12 +82,8 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     sac_most_recent_all <- student_acad_cred %>%
         inner_join( sac_max_effdt,
                     by = c("ID", "Term_ID", "Course_ID", "EffectiveDatetime") ) %>%
-        mutate( Keep_FA = ((Semester == "FA") & (Course_Status %in% c("A", "N"))),
-                Keep_NF = (Semester != "FA") & (Course_Status %in% c("A", "N", "W")) ) %>%
-        filter( Keep_FA | Keep_NF ) %>%
-        # filter( ((Semester == "FA") & (Course_Status %in% c("A", "N"))) |
-        #             ((Semester != "FA") & (Course_Status %in% c("A", "N", "W"))) ) %>%
-        select( -c(Keep_FA, Keep_NF,EffectiveDatetime) ) %>%
+        filter( Course_Status %in% c('A', 'N', 'W') ) %>%
+        select( -EffectiveDatetime ) %>%
         distinct() %>%
         select( -Course_ID )
 
@@ -95,8 +91,8 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     # Get list of students who are taking at least 1 non-developmental/audited course
     #
     sac_most_recent_non_dev_ids <- sac_most_recent_all %>%
-        filter( coalesce(Course_Level,'ZZZ') != 'DEV' ) %>%
-        filter( coalesce(Grade_Code,'X') != "9" ) %>%
+        filter( coalesce(Course_Level,"ZZZ") != "DEV" ) %>%
+        filter( coalesce(Grade_Code,'X') != '9' ) %>%
         select( ID, Term_ID ) %>%
         distinct()
 
@@ -104,8 +100,8 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     # Get list of students who are taking at least 1 distance course
     #
     sac_most_recent_1_distance_ids <- sac_most_recent_all %>%
-        filter( str_detect(coalesce(Course_Section,'ZZZ'), "W") ) %>%
-        filter( coalesce(Grade_Code,'X') != "9" ) %>%
+        filter( str_detect(coalesce(Course_Section,"ZZZ"), 'W') ) %>%
+        filter( coalesce(Grade_Code,'X') != '9' ) %>%
         select( ID, Term_ID ) %>%
         distinct()
 
@@ -113,8 +109,8 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     # Get list of students who are taking at least 1 regular course
     #
     sac_most_recent_f2f_ids <- sac_most_recent_all %>%
-        filter( !(str_detect(coalesce(Course_Section,'ZZZ'), "W")) ) %>%
-        filter( coalesce(Grade_Code,'X') != "9" ) %>%
+        filter( !(str_detect(coalesce(Course_Section,"ZZZ"), 'W')) ) %>%
+        filter( coalesce(Grade_Code,'X') != '9' ) %>%
         select( ID, Term_ID ) %>%
         distinct()
 
@@ -201,9 +197,9 @@ credential_seekers <- function( report_year, report_semesters = NA_character_, e
     #
     student_programs__dates <- getColleagueData( "STUDENT_PROGRAMS__STPR_DATES", version="history" ) %>%
         select( ID = STPR.STUDENT, Program = STPR.ACAD.PROGRAM, Program_Start_Date = STPR.START.DATE, Program_End_Date = STPR.END.DATE, EffectiveDatetime ) %>%
-        filter( !(Program %in% c('BSP', 'AHS', 'CONED', '=GED', '=HISET', 'C11', 'C50')) ) %>%
+        filter( !(Program %in% c("BSP", "AHS", "CONED", "=GED", "=HISET", "C11", "C50")) ) %>%
         collect() %>%
-        mutate( Program_End_Date = coalesce(Program_End_Date,as.Date('9999-12-31')) )
+        mutate( Program_End_Date = coalesce(Program_End_Date,as.Date("9999-12-31")) )
 
     if (exclude_hs) {
         student_programs__dates %<>% anti_join( high_school_programs, by = "Program" )
@@ -214,14 +210,14 @@ credential_seekers <- function( report_year, report_semesters = NA_character_, e
     #
     credential_seeking <- getColleagueData( "STUDENT_PROGRAMS" ) %>%
         select( ID = STPR.STUDENT, Program = STPR.ACAD.PROGRAM, EffectiveDatetime ) %>%
-        filter( !(Program %in% c('BSP', 'AHS', 'CONED', '=GED', '=HISET', 'C11', 'C50')) ) %>%
+        filter( !(Program %in% c("BSP", "AHS", "CONED", "=GED", "=HISET", "C11", "C50")) ) %>%
         collect() %>%
         inner_join( student_programs__dates, by = c("ID", "Program", "EffectiveDatetime") ) %>%
         select( -EffectiveDatetime ) %>%
 
         # Identify credential seekers.
         mutate( Credential_Seeker = case_when(
-                    substring(Program,1,1) %in% c("A","D","C") ~ 1,
+                    substring(Program,1,1) %in% c('A','D','C') ~ 1,
                     TRUE ~ 0
                 ),
                 j = 1 ) %>%
