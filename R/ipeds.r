@@ -60,6 +60,7 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
         select( ID = STC.PERSON.ID,
                 Term_ID = STC.TERM,
                 Course_ID = STUDENT.ACAD.CRED.ID,
+                Course_Section_ID = STC.COURSE.SECTION,
                 Course_Status = STC.STATUS,
                 Credit = STC.CRED,
                 Course_Level = STC.COURSE.LEVEL,
@@ -74,7 +75,7 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
                 Keep_NF = (Semester != "FA") ) %>%
         filter( Keep_FA | Keep_NF ) %>%
         select( -c(Keep_FA, Keep_NF) ) %>%
-        left_join( course_sections )
+        left_join( course_sections, by = c("Term_ID","Course_Section_ID") )
 
     #
     # Get most recent effective date for each person for each term for each course
