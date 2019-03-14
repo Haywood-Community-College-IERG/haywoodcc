@@ -10,14 +10,14 @@ pkg.env$ipeds_path <- file.path(pkg.env$ir_root, "Data", "IPEDS")
 #'
 #' All data comes from IERG SQL Server database
 #'
-#' @param report_year The starting year of the academic year of the data
+#' @param report_years The starting year of the academic year of the data
 #' @param report_semesters Either a single semester abbreviation or a list of semester abbreviations. If unspecified, all semesters are returned.
 #' @export
 #' @import magrittr
 #' @import dplyr
 #' @import stringr
 #'
-term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
+term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_character_ ) {
 
     terms <- getColleagueData( "Term_CU", schema = "dw_dim" ) %>%
         select( Term_ID,
@@ -32,8 +32,17 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
         collect() %>%
         mutate( Term_Reporting_Year = as.integer(Term_Reporting_Year) )
 
-    reporting_terms <- terms %>%
-        filter( Term_Reporting_Year == report_year )
+    if (!is.na(report_years)) {
+        if (length(report_years) == 1) {
+            reporting_terms <- terms %>%
+                filter( Term_Reporting_Year == report_years )
+        } else {
+            reporting_terms <- terms %>%
+                filter( Term_Reportint_Year %in% report_years )
+        }
+    } else {
+        reporting_terms <- terms
+    }
 
     if (!is.na(report_semesters)) {
         if (length(report_semesters) == 1) {
@@ -154,35 +163,39 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     #
     # Take term load table and reduce to the reporting terms
     #
-    sac_report_load_by_term <- sac_load_by_term %>%
-        inner_join( reporting_terms %>% select( Term_ID, Term_Reporting_Year ),
-                    by = c("Term_ID", "Term_Reporting_Year") )
+    if (!is.na(report_years)) {
+        sac_report_load_by_term <- sac_load_by_term %>%
+            inner_join( reporting_terms %>% select( Term_ID, Term_Reporting_Year ),
+                        by = c("Term_ID", "Term_Reporting_Year") )
 
-    return( sac_report_load_by_term )
+        return( sac_report_load_by_term )
+    } else {
+        return( sac_load_by_term )
+    }
 }
 
 #' A special function to call term_enrollment for just a fall term
 #'
 #' All data comes from IERG SQL Server database
 #'
-#' @param report_year The year of the fall term for the data
+#' @param report_years The year of the fall term for the data
 #' @export
 #'
-fall_enrollment <- function( report_year ) {
-    return( term_enrollment( report_year, "FA" ) )
+fall_enrollment <- function( report_years = NA ) {
+    return( term_enrollment( report_years, "FA" ) )
 }
 
 #' Return a data frame of students who are curriculum credential seekers (seeking an Associate's, Diploma, or Certificate)
 #'
 #' All data comes from IERG SQL Server database
 #'
-#' @param report_year The year of the fall term for the data
+#' @param report_years The year or a list of years of the fall term for the data. If unspecified, all years are returned.
 #' @param report_semesters Either a single semester abbreviation or a list of semester abbreviations. If unspecified, all semesters are returned.
 #' @param exlude_hs Should function exclude high school students from being included as credential seekers. Default is to include high school students.
 #' @export
 #' @importFrom magrittr %<>%
 #'
-credential_seekers <- function( report_year, report_semesters = NA_character_, exclude_hs = FALSE ) {
+credential_seekers <- function( report_years, report_semesters = NA_character_, exclude_hs = FALSE ) {
 
     terms <- getColleagueData( "Term_CU", schema = "dw_dim" ) %>%
         select( Term_ID,
@@ -256,12 +269,12 @@ credential_seekers <- function( report_year, report_semesters = NA_character_, e
 #'
 #' All data comes from IERG SQL Server database
 #'
-#' @param report_year The year of the fall term for the data
+#' @param report_years The year of the fall term for the data
 #' @param exlude_hs Should function exclude high school students from being included as credential seekers. Default is to include high school students.
 #' @export
 #'
-fall_credential_seekers <- function( report_year, exclude_hs = FALSE ) {
-    return( credential_seekers( report_year, "FA", exclude_hs ) )
+fall_credential_seekers <- function( report_years, exclude_hs = FALSE ) {
+    return( credential_seekers( report_years, "FA", exclude_hs ) )
 }
 
 
@@ -270,21 +283,21 @@ fall_credential_seekers <- function( report_year, exclude_hs = FALSE ) {
 #' Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv of
 #' from the IERG SQL Server database.
 #'
-#' @param report_year The year of the fall term for the data
+#' @param report_years The year of the fall term for the data
 #' @param cohorts Which cohorts to include in data frame. FT = Full-time First-time, PT = Part-time First-time,
 #'                TF = Full-time Transfer, TP = Part-time Transfer,
 #'                RF = Full-time Returning, RP = Part-time Returning
 #' @export
 #'
-ipeds_cohort <- function( report_year, cohorts=c("FT","PT","TF","TP","RF","RP") ) {
+ipeds_cohort <- function( report_years, cohorts=c("FT","PT","TF","TP","RF","RP") ) {
 
     report_cohorts <- ""
-    if (purrr::has_element(cohorts,"FT")) report_cohorts <- c(report_cohorts, str_c(report_year,"FT"))
-    if (purrr::has_element(cohorts,"PT")) report_cohorts <- c(report_cohorts, str_c(report_year,"PT"))
-    if (purrr::has_element(cohorts,"TF")) report_cohorts <- c(report_cohorts, str_c(report_year,"TF"))
-    if (purrr::has_element(cohorts,"TP")) report_cohorts <- c(report_cohorts, str_c(report_year,"TP"))
-    if (purrr::has_element(cohorts,"RF")) report_cohorts <- c(report_cohorts, str_c(report_year,"RF"))
-    if (purrr::has_element(cohorts,"RP")) report_cohorts <- c(report_cohorts, str_c(report_year,"RP"))
+    if (purrr::has_element(cohorts,"FT")) report_cohorts <- c(report_cohorts, str_c(report_years,"FT"))
+    if (purrr::has_element(cohorts,"PT")) report_cohorts <- c(report_cohorts, str_c(report_years,"PT"))
+    if (purrr::has_element(cohorts,"TF")) report_cohorts <- c(report_cohorts, str_c(report_years,"TF"))
+    if (purrr::has_element(cohorts,"TP")) report_cohorts <- c(report_cohorts, str_c(report_years,"TP"))
+    if (purrr::has_element(cohorts,"RF")) report_cohorts <- c(report_cohorts, str_c(report_years,"RF"))
+    if (purrr::has_element(cohorts,"RP")) report_cohorts <- c(report_cohorts, str_c(report_years,"RP"))
     report_cohorts <- report_cohorts[-1]
 
     ipeds_cohort_FILE_COHORTS <- read_csv( file.path(ipeds_path,"ipeds_cohorts.csv"), col_types = cols(.default=col_character()) ) %>%
