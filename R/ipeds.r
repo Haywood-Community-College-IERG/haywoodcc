@@ -46,6 +46,14 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     }
 
 
+    # Need to get section location for distance learning courses
+    # Right now, just take most recent. Probably need to do this the same way as SAC below.
+    course_sections <- getColleagueData( "COURSE_SECTIONS" ) %>%
+        select( Course_Section_ID = COURSE.SECTIONS.ID,
+                Term_ID = SEC.TERM,
+                Section_Location = SEC.LOCATION ) %>%
+        collect()
+
     student_acad_cred <- getColleagueData( "STUDENT_ACAD_CRED", version="previous" ) %>%
         filter( STC.ACAD.LEVEL == "CU",
                 STC.CRED > 0 ) %>%
@@ -57,7 +65,6 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
                 Course_Level = STC.COURSE.LEVEL,
                 Grade_Code = STC.VERIFIED.GRADE,
                 Course_Section = STC.SECTION.NO,
-                Section_Location = SEC.LOCATION,
                 EffectiveDatetime ) %>%
         collect() %>%
         inner_join( terms %>%
@@ -66,7 +73,8 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
         mutate( Keep_FA = ((Semester == "FA") & (EffectiveDatetime <= as.Date(str_c(Term_Reporting_Year,"-10-15")) )),
                 Keep_NF = (Semester != "FA") ) %>%
         filter( Keep_FA | Keep_NF ) %>%
-        select( -c(Keep_FA, Keep_NF) )
+        select( -c(Keep_FA, Keep_NF) ) %>%
+        left_join( course_sections )
 
     #
     # Get most recent effective date for each person for each term for each course
