@@ -57,6 +57,7 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
                 Course_Level = STC.COURSE.LEVEL,
                 Grade_Code = STC.VERIFIED.GRADE,
                 Course_Section = STC.SECTION.NO,
+                Section_Location = SEC.LOCATION,
                 EffectiveDatetime ) %>%
         collect() %>%
         inner_join( terms %>%
@@ -100,7 +101,9 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     # Get list of students who are taking at least 1 distance course
     #
     sac_most_recent_1_distance_ids <- sac_most_recent_all %>%
-        filter( str_detect(coalesce(Course_Section,"ZZZ"), 'W') ) %>%
+        filter( str_detect(coalesce(Course_Section,"ZZZ"), 'W') |
+                    str_detect(coalesce(Course_Section,"ZZZ"), 'IN') |
+                    Section_Location == "OL" ) %>%
         filter( coalesce(Grade_Code,'X') != '9' ) %>%
         select( ID, Term_ID ) %>%
         distinct()
