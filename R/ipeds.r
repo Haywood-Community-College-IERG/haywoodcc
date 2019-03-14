@@ -110,6 +110,7 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     # Get list of students who are taking at least 1 distance course
     #
     sac_most_recent_1_distance_ids <- sac_most_recent_all %>%
+        inner_join( sac_most_recent_non_dev_ids, by = c("ID", "Term_ID") ) %>%
         filter( str_detect(coalesce(Course_Section,"ZZZ"), 'W') |
                     str_detect(coalesce(Course_Section,"ZZZ"), 'IN') |
                     Section_Location == "OL" ) %>%
@@ -121,7 +122,9 @@ term_enrollment <- function( report_year, report_semesters = NA_character_ ) {
     # Get list of students who are taking at least 1 regular course
     #
     sac_most_recent_f2f_ids <- sac_most_recent_all %>%
-        filter( !(str_detect(coalesce(Course_Section,"ZZZ"), 'W')) ) %>%
+        filter( !(str_detect(coalesce(Course_Section,"ZZZ"), 'W')) &
+                    !(str_detect(coalesce(Course_Section,"ZZZ"), 'IN')) &
+                    Section_Location != "OL" ) %>%
         filter( coalesce(Grade_Code,'X') != '9' ) %>%
         select( ID, Term_ID ) %>%
         distinct()
