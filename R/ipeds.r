@@ -195,7 +195,7 @@ fall_enrollment <- function( report_years = NA ) {
 #' @export
 #' @importFrom magrittr %<>%
 #'
-credential_seekers <- function( report_years, report_semesters = NA_character_, exclude_hs = FALSE ) {
+credential_seekers <- function( report_years = NA_integer_, report_semesters = NA_character_, exclude_hs = FALSE ) {
 
     terms <- getColleagueData( "Term_CU", schema = "dw_dim" ) %>%
         select( Term_ID,
@@ -221,7 +221,7 @@ credential_seekers <- function( report_years, report_semesters = NA_character_, 
                 filter( Term_Reporting_Year %in% report_years )
         }
     }
-    
+
     if (!is.na(report_semesters)) {
         if (length(report_semesters) == 1) {
             reporting_terms %<>%
