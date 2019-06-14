@@ -210,6 +210,18 @@ credential_seekers <- function( report_years, report_semesters = NA_character_, 
         collect() %>%
         mutate( Term_Reporting_Year = as.integer(Term_Reporting_Year) )
 
+    reporting_terms <- terms
+
+    if (!is.na(report_years)) {
+        if (length(report_years) == 1) {
+            reporting_terms %<>%
+                filter( Term_Reporting_Year == report_years )
+        } else {
+            reporting_terms %<>%
+                filter( Term_Reporting_Year %in% report_years )
+        }
+    }
+    
     if (!is.na(report_semesters)) {
         if (length(report_semesters) == 1) {
             reporting_terms %<>%

@@ -41,3 +41,28 @@ getColleagueData <- function( file, schema="history", version="latest", sep='.' 
 
     getColleagueData <- df
 }
+
+high_school_graduation_dates <- function() {
+    institutions_attend <- getColleagueData( "INSTITUTIONS_ATTEND" ) %>%
+
+        # Keep HS graduation records
+        filter( INSTA.INST.TYPE == "HS",
+                INSTA.GRAD.TYPE == "Y" ) %>%
+        select( ID=INSTA.PERSON.ID,
+                Institution_Name=X.INSTA.INSTITUTION,
+                End_Dates=INSTA.END.DATES
+        ) %>%
+        collect() %>%
+
+        # For some reason, there are some records with multiple dates, keep the earliest one
+        mutate( End_Date = strsplit(End_Dates,", ") ) %>%
+        unnest( End_Date ) %>%
+        select( -End_Dates ) %>%
+        filter( !is.na(End_Date) ) %>%
+        mutate( End_Date = ymd(End_Date) ) %>%
+        group_by( ID ) %>%
+        summarize( HS_Grad_Date = min(End_Date) ) %>%
+        ungroup() %>%
+
+        distinct()
+}
