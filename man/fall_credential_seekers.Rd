@@ -4,10 +4,10 @@
 \alias{fall_credential_seekers}
 \title{A special function to call credential_seekers for just a fall term}
 \usage{
-fall_credential_seekers(report_year, exclude_hs = FALSE)
+fall_credential_seekers(report_years, exclude_hs = FALSE)
 }
 \arguments{
-\item{report_year}{The year of the fall term for the data}
+\item{report_years}{The year of the fall term for the data}
 
 \item{exlude_hs}{Should function exclude high school students from being included as credential seekers. Default is to include high school students.}
 }

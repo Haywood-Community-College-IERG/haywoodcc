@@ -4,10 +4,10 @@
 \alias{fall_enrollment}
 \title{A special function to call term_enrollment for just a fall term}
 \usage{
-fall_enrollment(report_year)
+fall_enrollment(report_years = NA)
 }
 \arguments{
-\item{report_year}{The year of the fall term for the data}
+\item{report_years}{The year of the fall term for the data}
 }
 \description{
 All data comes from IERG SQL Server database

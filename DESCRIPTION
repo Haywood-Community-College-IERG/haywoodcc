@@ -1,6 +1,6 @@
 Package: haywoodcc
 Title: Collection of functions for use at Haywood Community College (HCC)
-Version: 0.0.0.9002
+Version: 0.0.0.9003
 Authors@R: person("David", "Onder", email = "donder@haywood.edu", role = c("aut", "cre"))
 Description: Collection of functions to manage and process data at Haywood Community College (HCC). 
     These functions make it possible to manipulate data meeting the formatting as specified by the 
@@ -10,7 +10,7 @@ Depends:
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Imports:
     dplyr (>= 0.7.6),
     lubridate (>= 1.7.4),
