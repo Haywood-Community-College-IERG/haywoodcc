@@ -16,7 +16,8 @@ merge_files <- function( path=getwd(), pattern="*", type="csv", FNvar="", FUN=""
                         col_types=cols(.default=col_character()), ... ) {
     useColTypes <- FALSE
 
-    if (!is.function(match.fun(FUN, descend=FALSE))) {
+    if (FUN=="") {
+#    if (!is.function(match.fun(FUN, descend=FALSE))) {
         if (type=="csv") {
             readfile <- readr::read_csv
             useColTypes <- TRUE

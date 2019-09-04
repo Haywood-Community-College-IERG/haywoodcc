@@ -299,9 +299,13 @@ fall_credential_seekers <- function( report_years, exclude_hs = FALSE ) {
 #' @param cohorts Which cohorts to include in data frame. FT = Full-time First-time, PT = Part-time First-time,
 #'                TF = Full-time Transfer, TP = Part-time Transfer,
 #'                RF = Full-time Returning, RP = Part-time Returning
+#' @param use Which dataset should be used for cohorts from Colleague
+#'            ipeds_cohorts Use the local.ipeds_cohorts table
+#'            STUDENT_TERMS Use the history.STUDENT_TERMS_Current view
+#' @param useonly Us the specified 'use' table only. Default is FALSE which means combine generated history.ipeds_cohorts with STUDENT_TERMS
 #' @export
 #'
-ipeds_cohort <- function( report_years, cohorts=c("FT","PT","TF","TP","RF","RP") ) {
+ipeds_cohort <- function( report_years, cohorts=c("FT","PT","TF","TP","RF","RP"), use = "ipeds_cohorts", useonly = TRUE ) {
 
     report_cohorts <- ""
     if (purrr::has_element(cohorts,"FT")) report_cohorts <- c(report_cohorts, str_c(report_years,"FT"))
@@ -316,15 +320,29 @@ ipeds_cohort <- function( report_years, cohorts=c("FT","PT","TF","TP","RF","RP")
         filter( Cohort %in% c(report_cohorts) ) %>%
         select( ID, Term_ID, Cohort )
 
-    ipeds_cohort_COLLEAGUE_COHORTS <- getColleagueData( "STUDENT_TERMS" ) %>%
-        select( ID = STTR.STUDENT, Cohort = STTR.FED.COHORT.GROUP ) %>%
-        filter( Cohort %in% c(report_cohorts) ) %>%
-        distinct() %>%
-        collect() %>%
-        mutate( Term_ID = str_c(substring(Cohort,1,4),"FA") )
+    if (toupper(use) == "STUDENT_TERMS") {
+        ipeds_cohort_COLLEAGUE_COHORTS <- getColleagueData( "STUDENT_TERMS" ) %>%
+            select( ID = STTR.STUDENT, Cohort = STTR.FED.COHORT.GROUP ) %>%
+            filter( Cohort %in% c(report_cohorts) ) %>%
+            distinct() %>%
+            collect() %>%
+            mutate( Term_ID = str_c(substring(Cohort,1,4),"FA") )
+    } else {
+        if (toupper(use) != "IPEDS_COHORTS") {
+            warning(str_c("Invallid use value (",use,"), defaulting to 'ipeds_cohorts'"))
+        }
+        ipeds_cohort_COLLEAGUE_COHORTS <- getColleagueData( "ipeds_cohorts", schema="local", version="latest" ) %>%
+            select( ID, Term_ID, Cohort ) %>%
+            filter( !is.na(Cohort) ) %>%
+            collect()
+    }
 
-    ic <- ipeds_cohort_FILE_COHORTS %>%
-        bind_rows( ipeds_cohort_COLLEAGUE_COHORTS )
+    if (useonly) {
+        ic <- ipeds_cohort_COLLEAGUE_COHORTS
+    } else {
+        ic <- ipeds_cohort_FILE_COHORTS %>%
+            bind_rows( ipeds_cohort_COLLEAGUE_COHORTS )
+    }
 
     return( ic )
 }
