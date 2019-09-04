@@ -12,11 +12,11 @@
 #' @export
 #' @importFrom dplyr bind_rows
 #'
-merge_files <- function( path=getwd(), pattern="*", type="csv", FNvar="", FUN="",
+merge_files <- function( path=getwd(), pattern="*", type="csv", FNvar="", FUN=NA,
                         col_types=cols(.default=col_character()), ... ) {
     useColTypes <- FALSE
 
-    if (FUN=="") {
+    if (is.na(FUN)) {
 #    if (!is.function(match.fun(FUN, descend=FALSE))) {
         if (type=="csv") {
             readfile <- readr::read_csv
