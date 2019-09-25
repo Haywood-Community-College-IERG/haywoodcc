@@ -10,7 +10,7 @@ pkg.env$ipeds_path <- file.path(pkg.env$ir_root, "Data", "IPEDS")
 #'
 #' All data comes from IERG SQL Server database
 #'
-#' @param report_years The starting year of the academic year of the data
+#' @param report_years The ending year of the academic year of the data
 #' @param report_semesters Either a single semester abbreviation or a list of semester abbreviations. If unspecified, all semesters are returned.
 #' @export
 #' @import magrittr
@@ -27,8 +27,8 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
                 Term_Start_Date,
                 Term_Census_Date,
                 Term_End_Date,
-                Term_Reporting_Year = Reporting_Year,
-                Academic_Year ) %>%
+                Term_Reporting_Year = Reporting_Year_FSS,
+                Academic_Year = Reporting_Academic_Year_FSS ) %>%
         collect() %>%
         mutate( Term_Reporting_Year = as.integer(Term_Reporting_Year) )
 
