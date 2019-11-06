@@ -30,7 +30,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
                 Term_Reporting_Year = Reporting_Year_FSS,
                 Academic_Year = Reporting_Academic_Year_FSS ) %>%
         collect() %>%
-        mutate( Term_Reporting_Year = as.integer(Term_Reporting_Year) )
+        mutate( Term_Reporting_Year = as.integer(Term_Reporting_Year) - 1 )
 
     if (!is.na(report_years)) {
         if (length(report_years) == 1) {
@@ -205,10 +205,10 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
                 Term_Start_Date,
                 Term_Census_Date,
                 Term_End_Date,
-                Term_Reporting_Year = Reporting_Year,
-                Academic_Year ) %>%
+                Term_Reporting_Year = Reporting_Year_FSS,
+                Academic_Year = Reporting_Academic_Year_FSS ) %>%
         collect() %>%
-        mutate( Term_Reporting_Year = as.integer(Term_Reporting_Year) )
+        mutate( Term_Reporting_Year = as.integer(Term_Reporting_Year) - 1 )
 
     reporting_terms <- terms
 
@@ -292,7 +292,7 @@ fall_credential_seekers <- function( report_years, exclude_hs = FALSE ) {
 
 #' Return a data from of the IPEDS cohort data.
 #'
-#' Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv of
+#' Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv or
 #' from the IERG SQL Server database.
 #'
 #' @param report_years The year of the fall term for the data
