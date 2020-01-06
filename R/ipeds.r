@@ -38,7 +38,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
                 filter( Term_Reporting_Year == report_years )
         } else {
             reporting_terms <- terms %>%
-                filter( Term_Reportint_Year %in% report_years )
+                filter( Term_Reporting_Year %in% report_years )
         }
     } else {
         reporting_terms <- terms
