@@ -95,7 +95,8 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
 
     #
     # Now get the course data for the latest courses.
-    # Use Status of A,N for FA since we want only enrolled courses at the cutoff date
+    # Use Status of A,N for FA since we want only enrolled courses at the cutoff date 
+    #     (This will be taken care of later as we need the W credits to determine load)
     # Use Status A,N,W for SP,SU since these were all the courses enrolled in at census
     #
     sac_most_recent_all <- student_acad_cred %>%
@@ -146,6 +147,15 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
         left_join( sac_most_recent_all_distance_ids, by = c("ID", "Term_ID") ) %>%
         mutate( Distance_Courses = coalesce(Distance_Courses,"At least 1") )
 
+    # Determine which students have completely withdrawn at the end or by Oct 15
+    sac_most_recent_all_withdraws <- sac_most_recent_all %>%
+        filter( Course_Status %in% c('W') ) %>%
+        anti_join( sac_most_recent_all %>% filter( Course_Status %in% c('A', 'N') ),
+                by = c("ID", "Term_ID" ) ) %>%
+        select( ID, Term_ID ) %>%
+        distinct() %>%
+        mutate( Enrollment_Status = "Withdrawn" )
+    
     #
     # Now create a summary table to calculate load by term
     #
@@ -158,6 +168,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
         mutate( Status = if_else(Credits >= 12, "FT", "PT") ) %>%
         ungroup() %>%
         left_join( sac_most_recent_distance_ids, by = c("ID", "Term_ID") ) %>%
+        left_join( sac_most_recent_all_withdraws, by = c("ID", "Term_ID") ) %>%
         mutate( Distance_Courses = coalesce(Distance_Courses,"None") )
 
     #
