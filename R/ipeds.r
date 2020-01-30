@@ -169,7 +169,8 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
         ungroup() %>%
         left_join( sac_most_recent_distance_ids, by = c("ID", "Term_ID") ) %>%
         left_join( sac_most_recent_all_withdraws, by = c("ID", "Term_ID") ) %>%
-        mutate( Distance_Courses = coalesce(Distance_Courses,"None") )
+        mutate( Distance_Courses = coalesce(Distance_Courses,"None"),
+                Enrollment_Status = coalesce(Enrollment_Status,"Enrolled") )
 
     #
     # Take term load table and reduce to the reporting terms
