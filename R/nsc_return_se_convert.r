@@ -16,14 +16,14 @@
 nsc_return_se_convert <- function(fn) {
 
     # Load the specified file into a dataframe
-    students <- tibble::as_data_frame(
+    students <- tibble::as_tibble(
         readr::read_csv(fn, col_types=readr::cols(.default = readr::col_character()))
         )
 
     # get students with no activity into no_act, remove from students
     no_act <- students %>% dplyr::filter( `Record Found Y/N` == 'N' ) %>%
         # Remove graduation columns - they will be added back later
-        dplyr::select( -`Graduated?`, -`Graduation Date`, -starts_with("Degree") )
+        dplyr::select( `Your Unique Identifier`:`Search Date` )
 
     # ...For the rest, convert the dates into dates
     students %<>% dplyr::filter( `Record Found Y/N` == 'Y' ) %>%
