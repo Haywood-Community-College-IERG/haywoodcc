@@ -63,19 +63,19 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
                 Section_Location = SEC.LOCATION ) %>%
         collect()
 
-    student_acad_cred <- getColleagueData( "STUDENT_ACAD_CRED", version="previous" ) %>%
+    student_acad_cred <- getColleagueData( "STUDENT_ACAD_CRED", version="history" ) %>%
         filter( STC.ACAD.LEVEL == "CU",
                 STC.CRED > 0 ) %>%
         select( ID = STC.PERSON.ID,
                 Term_ID = STC.TERM,
                 Course_ID = STUDENT.ACAD.CRED.ID,
-                Course_Section_ID = STC.COURSE.SECTION,
-                Course_Status = STC.STATUS,
                 Credit = STC.CRED,
                 Course_Level = STC.COURSE.LEVEL,
                 Grade_Code = STC.VERIFIED.GRADE,
                 Course_Section = STC.SECTION.NO,
-                EffectiveDatetime ) %>%
+                EffectiveDatetime,
+                Course_Section_ID = STC.COURSE.SECTION,
+                Course_Status = STC.STATUS ) %>%
         collect() %>%
         inner_join( terms %>%
                         select(Term_ID, Term_Reporting_Year, Semester, Term_Census_Date),
@@ -95,7 +95,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
 
     #
     # Now get the course data for the latest courses.
-    # Use Status of A,N for FA since we want only enrolled courses at the cutoff date 
+    # Use Status of A,N for FA since we want only enrolled courses at the cutoff date
     #     (This will be taken care of later as we need the W credits to determine load)
     # Use Status A,N,W for SP,SU since these were all the courses enrolled in at census
     #
@@ -155,7 +155,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
         select( ID, Term_ID ) %>%
         distinct() %>%
         mutate( Enrollment_Status = "Withdrawn" )
-    
+
     #
     # Now create a summary table to calculate load by term
     #
@@ -248,7 +248,11 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
     # Get program dates (this is a multi-valued field that needs to be joined with full table).
     #
     student_programs__dates <- getColleagueData( "STUDENT_PROGRAMS__STPR_DATES", version="history" ) %>%
-        select( ID = STPR.STUDENT, Program = STPR.ACAD.PROGRAM, Program_Start_Date = STPR.START.DATE, Program_End_Date = STPR.END.DATE, EffectiveDatetime ) %>%
+        select( ID = STPR.STUDENT,
+                Program = STPR.ACAD.PROGRAM,
+                Program_Start_Date = STPR.START.DATE,
+                Program_End_Date = STPR.END.DATE,
+                EffectiveDatetime ) %>%
         filter( !(Program %in% c("BSP", "AHS", "CONED", "=GED", "=HISET", "C11", "C50")) ) %>%
         collect() %>%
         mutate( Program_End_Date = coalesce(Program_End_Date,as.Date("9999-12-31")) )
@@ -261,7 +265,9 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
     # Credential-seekers are those in A, D, or C programs
     #
     credential_seeking <- getColleagueData( "STUDENT_PROGRAMS" ) %>%
-        select( ID = STPR.STUDENT, Program = STPR.ACAD.PROGRAM, EffectiveDatetime ) %>%
+        select( ID = STPR.STUDENT,
+                Program = STPR.ACAD.PROGRAM,
+                EffectiveDatetime ) %>%
         filter( !(Program %in% c("BSP", "AHS", "CONED", "=GED", "=HISET", "C11", "C50")) ) %>%
         collect() %>%
         inner_join( student_programs__dates, by = c("ID", "Program", "EffectiveDatetime") ) %>%
