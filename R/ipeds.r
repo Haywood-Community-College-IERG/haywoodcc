@@ -246,6 +246,12 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
         }
     }
 
+    # Get only CU programs from ACAD_PROGRAMS
+    acad_programs <- getColleagueData( "ACAD_PROGRAMS" ) %>%
+        filter( ACPG.ACAD.LEVEL == "CU" ) %>%
+        select( Program = ACAD.PROGRAMS.ID ) %>%
+        collect()
+
     #
     # Get program dates (this is a multi-valued field that needs to be joined with full table).
     #
@@ -255,8 +261,8 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
                 Program_Start_Date = STPR.START.DATE,
                 Program_End_Date = STPR.END.DATE,
                 EffectiveDatetime ) %>%
-        filter( !(Program %in% c("BSP", "AHS", "CONED", "=GED", "=HISET", "C11", "C50")) ) %>%
         collect() %>%
+        inner_join( acad_programs, by="Program" ) %>%
         mutate( Program_End_Date = coalesce(Program_End_Date,as.Date("9999-12-31")) )
 
     if (exclude_hs) {
@@ -269,9 +275,10 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
     credential_seeking <- getColleagueData( "STUDENT_PROGRAMS" ) %>%
         select( ID = STPR.STUDENT,
                 Program = STPR.ACAD.PROGRAM,
+                Academic_Level = 
                 EffectiveDatetime ) %>%
-        filter( !(Program %in% c("BSP", "AHS", "CONED", "=GED", "=HISET", "C11", "C50")) ) %>%
         collect() %>%
+        inner_join( acad_programs, by="Program" ) %>%
         inner_join( student_programs__dates, by = c("ID", "Program", "EffectiveDatetime") ) %>%
         select( -EffectiveDatetime ) %>%
 
