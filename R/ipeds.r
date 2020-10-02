@@ -60,7 +60,12 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
     course_sections <- getColleagueData( "COURSE_SECTIONS" ) %>%
         select( Course_Section_ID = COURSE.SECTIONS.ID,
                 Term_ID = SEC.TERM,
-                Section_Location = SEC.LOCATION ) %>%
+                Section_Location = SEC.LOCATION,
+                Delivery_Method = X.SEC.DELIVERY.METHOD,
+                Delivery_Mode = X.SEC.DELIVERY.MODE #,
+#                Delivery_NCIH_Flag = X.SEC.DELIVERY.NCIH.FLAG,
+#                Delivery_Modifier = X.SEC.DELIVERY.MODIFIER
+             ) %>%
         collect()
 
     student_acad_cred <- getColleagueData( "STUDENT_ACAD_CRED", version="history" ) %>%
@@ -121,9 +126,8 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
     #
     sac_most_recent_1_distance_ids <- sac_most_recent_all %>%
         inner_join( sac_most_recent_non_dev_ids, by = c("ID", "Term_ID") ) %>%
-        filter( str_detect(coalesce(Course_Section,"ZZZ"), 'W') |
-                    str_detect(coalesce(Course_Section,"ZZZ"), 'IN') |
-                    Section_Location == "OL" ) %>%
+        filter( Delivery_Method == "IN" ) %>%
+
         filter( coalesce(Grade_Code,'X') != '9' ) %>%
         select( ID, Term_ID ) %>%
         distinct()
@@ -132,9 +136,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
     # Get list of students who are taking at least 1 regular course
     #
     sac_most_recent_f2f_ids <- sac_most_recent_all %>%
-        filter( !(str_detect(coalesce(Course_Section,"ZZZ"), 'W')) &
-                    !(str_detect(coalesce(Course_Section,"ZZZ"), 'IN')) &
-                    Section_Location != "OL" ) %>%
+        filter( Delivery_Method != "IN" ) %>%
         filter( coalesce(Grade_Code,'X') != '9' ) %>%
         select( ID, Term_ID ) %>%
         distinct()
