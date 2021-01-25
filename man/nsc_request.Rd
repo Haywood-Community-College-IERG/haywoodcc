@@ -4,10 +4,15 @@
 \alias{nsc_request}
 \title{Create a National Student Clearinghouse request file}
 \usage{
-nsc_request(df, config, inquiryType = "SE", path = getwd(),
+nsc_request(
+  df,
+  config,
+  inquiryType = "SE",
+  path = getwd(),
   fn = paste0(deparse(substitute(df)), "_SE.tsv"),
   search = format(Sys.Date(), "\%Y\%m\%d"),
-  enrolledStudents = ifelse(inquiryType == "SE", FALSE, TRUE))
+  enrolledStudents = ifelse(inquiryType == "SE", FALSE, TRUE)
+)
 }
 \arguments{
 \item{df}{Dataframe to convert into format for submission to NSC}

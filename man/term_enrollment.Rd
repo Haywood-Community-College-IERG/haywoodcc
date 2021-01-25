@@ -4,11 +4,10 @@
 \alias{term_enrollment}
 \title{Return enrollment for specified term as of the IPEDS reporting date of October 15}
 \usage{
-term_enrollment(report_years = NA_integer_,
-  report_semesters = NA_character_)
+term_enrollment(report_years = NA_integer_, report_semesters = NA_character_)
 }
 \arguments{
-\item{report_years}{The starting year of the academic year of the data}
+\item{report_years}{The ending year of the academic year of the data}
 
 \item{report_semesters}{Either a single semester abbreviation or a list of semester abbreviations. If unspecified, all semesters are returned.}
 }

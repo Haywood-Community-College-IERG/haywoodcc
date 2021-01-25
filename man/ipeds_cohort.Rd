@@ -4,8 +4,12 @@
 \alias{ipeds_cohort}
 \title{Return a data from of the IPEDS cohort data.}
 \usage{
-ipeds_cohort(report_years, cohorts = c("FT", "PT", "TF", "TP", "RF",
-  "RP"), use = "ipeds_cohorts", useonly = TRUE)
+ipeds_cohort(
+  report_years,
+  cohorts = c("FT", "PT", "TF", "TP", "RF", "RP"),
+  use = "ipeds_cohorts",
+  useonly = TRUE
+)
 }
 \arguments{
 \item{report_years}{The year of the fall term for the data}
@@ -21,6 +25,6 @@ STUDENT_TERMS Use the history.STUDENT_TERMS_Current view}
 \item{useonly}{Us the specified 'use' table only. Default is FALSE which means combine generated history.ipeds_cohorts with STUDENT_TERMS}
 }
 \description{
-Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv of
+Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv or
 from the IERG SQL Server database.
 }

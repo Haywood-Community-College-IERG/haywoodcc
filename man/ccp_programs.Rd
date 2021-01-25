@@ -4,10 +4,12 @@
 \name{ccp_programs}
 \alias{ccp_programs}
 \title{All current Career and College Promise (CCP) program codes.}
-\format{A data frame with 38 rows and 1 variable:
+\format{
+A data frame with 38 rows and 1 variable:
 \describe{
   \item{Program}{Program code}
-}}
+}
+}
 \usage{
 ccp_programs
 }

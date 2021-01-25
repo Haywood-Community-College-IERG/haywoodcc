@@ -4,10 +4,12 @@
 \name{early_college_programs}
 \alias{early_college_programs}
 \title{All current Early College (EC) program codes.}
-\format{A data frame with 3 rows and 1 variable:
+\format{
+A data frame with 3 rows and 1 variable:
 \describe{
   \item{Program}{Program code}
-}}
+}
+}
 \usage{
 early_college_programs
 }
