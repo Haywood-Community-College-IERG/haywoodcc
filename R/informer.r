@@ -2,10 +2,10 @@ pkg.env <- new.env(parent = emptyenv())
 
 pkg.env$cfg = NA_character_
 
-#' Return a data from data warehouse Colleague tables.
+#' Load the YAML configuration file.
 #'
-#' Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv of
-#' from the CCDW_HIST SQL Server database.
+#' Load the specified YAML configuration file. If no file is provided,
+#' load "./config.yml".
 #'
 #' @param cfg_fn The file name for the YAML configuration file. Defaults to config.yml.
 #' @param cfg_path The file path to the YAML configuration file. Defaults to ".".

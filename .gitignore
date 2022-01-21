@@ -6,3 +6,6 @@
 /data-raw/early_college_programs.csv
 /data-raw/ccp_programs.csv
 /.Renviron
+/R/config.yml
+/R/test_do_not_src_control.r
+config.yml
