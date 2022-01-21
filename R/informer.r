@@ -8,6 +8,7 @@ pkg.env <- new.env(parent = emptyenv())
 #' @param file The name of the Colleague file to return
 #' @param schema Which schema should be used. Needed for non-Colleague tables.
 #' @param version Specify which version to include. Default is for the latest data. Any other value will return the dated file.
+#' @param cfg A YAML configuration file with sql section that includes driver, server, db, and schema_history
 #' @param sep The separator to use in the field names. Default is a '.' as in the original Colleague file.
 #' @export
 #' @importFrom stringr str_c
