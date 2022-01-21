@@ -1,11 +1,5 @@
 pkg.env <- new.env(parent = emptyenv())
 
-#
-# require(magrittr)
-# require(dplyr)
-# require(stringr)
-#
-
 #' Return enrollment for specified term as of the IPEDS reporting date of October 15
 #'
 #' All data comes from CCDW_HIST SQL Server database
