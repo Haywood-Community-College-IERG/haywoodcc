@@ -10,5 +10,5 @@ fall_enrollment(report_years = NA)
 \item{report_years}{The year of the fall term for the data}
 }
 \description{
-All data comes from IERG SQL Server database
+All data comes from CCDW_HIST SQL Server database
 }

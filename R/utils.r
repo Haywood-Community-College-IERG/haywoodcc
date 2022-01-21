@@ -6,14 +6,6 @@
 #'
 "%nin%" <- function(x, y) !(x %in% y)
 
-#' If lhs is null, then return rhs.
-#'
-#' @param lhs Element to return if it is not null.
-#' @param rhs Element to return if lhs is null.
-#' @export
-#'
-"%||%" <- function(lhs, rhs) if (!is.null(lhs)) lhs else rhs # From scales/date-time.r
-
 #' Coalesce a value to a non-null and non-blank.
 #'
 #' @param var Value to return if not null or blank.
@@ -72,21 +64,10 @@ age <- function(from, to) {
 
 }
 
-#' Just another name for \%like any\%.
-#'
-#' @param x Elements to return if it matches any one pattern.
-#' @param pattern Patterns to match.
-#' @export
-#'
-# From https://github.com/cran/DescTools/blob/master/R/DescTools.r
-`%like%` <- function(x, pattern) {
-    return(`%like any%`(x, pattern))
-}
-
 #' The opposite of \%like any\%.
 #'
 #' @param x Elements to return if it matches any one pattern.
 #' @param pattern Patterns to match.
 #' @export
 #'
-`%nlike%` <- function(x, pattern) !`%like%`(x,pattern)
+`%nlike%` <- function(x, pattern) !`%like any%`(x,pattern)

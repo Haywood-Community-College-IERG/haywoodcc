@@ -12,5 +12,5 @@ term_enrollment(report_years = NA_integer_, report_semesters = NA_character_)
 \item{report_semesters}{Either a single semester abbreviation or a list of semester abbreviations. If unspecified, all semesters are returned.}
 }
 \description{
-All data comes from IERG SQL Server database
+All data comes from CCDW_HIST SQL Server database
 }

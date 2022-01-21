@@ -12,5 +12,5 @@ fall_credential_seekers(report_years, exclude_hs = FALSE)
 \item{exlude_hs}{Should function exclude high school students from being included as credential seekers. Default is to include high school students.}
 }
 \description{
-All data comes from IERG SQL Server database
+All data comes from CCDW_HIST SQL Server database
 }

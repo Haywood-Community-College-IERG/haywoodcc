@@ -26,5 +26,5 @@ STUDENT_TERMS Use the history.STUDENT_TERMS_Current view}
 }
 \description{
 Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv or
-from the IERG SQL Server database.
+from the CCDW_HIST SQL Server database.
 }

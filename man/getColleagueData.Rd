@@ -4,7 +4,13 @@
 \alias{getColleagueData}
 \title{Return a data from data warehouse Colleague tables.}
 \usage{
-getColleagueData(file, schema = "history", version = "latest", sep = ".")
+getColleagueData(
+  file,
+  schema = "history",
+  version = "latest",
+  cfg = NA_character,
+  sep = "."
+)
 }
 \arguments{
 \item{file}{The name of the Colleague file to return}
@@ -13,9 +19,11 @@ getColleagueData(file, schema = "history", version = "latest", sep = ".")
 
 \item{version}{Specify which version to include. Default is for the latest data. Any other value will return the dated file.}
 
+\item{cfg}{A YAML configuration file with sql section that includes driver, server, db, and schema_history}
+
 \item{sep}{The separator to use in the field names. Default is a '.' as in the original Colleague file.}
 }
 \description{
 Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv of
-from the IERG SQL Server database.
+from the CCDW_HIST SQL Server database.
 }
