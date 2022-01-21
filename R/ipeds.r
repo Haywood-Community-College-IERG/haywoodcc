@@ -1,14 +1,8 @@
 pkg.env <- new.env(parent = emptyenv())
 
-pkg.env$ir_root <- "L:/IERG"
-pkg.env$cfg <- yaml::yaml.load_file(file.path(pkg.env$ir_root, "Data/config.yml"))
-
-pkg.env$ipeds_scripts_path <- pkg.env$cfg$R$scripts_path
-pkg.env$ipeds_path <- file.path(pkg.env$ir_root, "Data", "IPEDS")
-
 #' Return enrollment for specified term as of the IPEDS reporting date of October 15
 #'
-#' All data comes from IERG SQL Server database
+#' All data comes from CCDW_HIST SQL Server database
 #'
 #' @param report_years The ending year of the academic year of the data
 #' @param report_semesters Either a single semester abbreviation or a list of semester abbreviations. If unspecified, all semesters are returned.
@@ -190,7 +184,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
 
 #' A special function to call term_enrollment for just a fall term
 #'
-#' All data comes from IERG SQL Server database
+#' All data comes from CCDW_HIST SQL Server database
 #'
 #' @param report_years The year of the fall term for the data
 #' @export
@@ -201,7 +195,7 @@ fall_enrollment <- function( report_years = NA ) {
 
 #' Return a data frame of students who are curriculum credential seekers (seeking an Associate's, Diploma, or Certificate)
 #'
-#' All data comes from IERG SQL Server database
+#' All data comes from CCDW_HIST SQL Server database
 #'
 #' @param report_years The year or a list of years of the fall term for the data. If unspecified, all years are returned.
 #' @param report_semesters Either a single semester abbreviation or a list of semester abbreviations. If unspecified, all semesters are returned.
@@ -306,7 +300,7 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
 
 #' A special function to call credential_seekers for just a fall term
 #'
-#' All data comes from IERG SQL Server database
+#' All data comes from CCDW_HIST SQL Server database
 #'
 #' @param report_years The year of the fall term for the data
 #' @param exlude_hs Should function exclude high school students from being included as credential seekers. Default is to include high school students.
@@ -320,7 +314,7 @@ fall_credential_seekers <- function( report_years, exclude_hs = FALSE ) {
 #' Return a data from of the IPEDS cohort data.
 #'
 #' Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv or
-#' from the IERG SQL Server database.
+#' from the CCDW_HIST SQL Server database.
 #'
 #' @param report_years The year of the fall term for the data
 #' @param cohorts Which cohorts to include in data frame. FT = Full-time First-time, PT = Part-time First-time,

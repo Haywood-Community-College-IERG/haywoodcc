@@ -1,12 +1,9 @@
 pkg.env <- new.env(parent = emptyenv())
 
-pkg.env$ir_root <- "L:/IERG"
-pkg.env$cfg <- yaml::yaml.load_file(file.path(pkg.env$ir_root, "Data/config.yml"))
-
 #' Return a data from data warehouse Colleague tables.
 #'
 #' Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv of
-#' from the IERG SQL Server database.
+#' from the CCDW_HIST SQL Server database.
 #'
 #' @param file The name of the Colleague file to return
 #' @param schema Which schema should be used. Needed for non-Colleague tables.
@@ -15,9 +12,11 @@ pkg.env$cfg <- yaml::yaml.load_file(file.path(pkg.env$ir_root, "Data/config.yml"
 #' @export
 #' @importFrom stringr str_c
 #'
-getColleagueData <- function( file, schema="history", version="latest", sep='.' ) {
+getColleagueData <- function( file, schema="history", version="latest", cfg=NA_character, sep='.' ) {
 
-    cfg <- yaml::yaml.load_file("L:/IERG/Data/config.yml")
+    if (is.na(cfg)) {
+        cfg <- yaml::yaml.load_file("config.yml")
+    }
 
     conn_str <- str_c( str_c("Driver",   str_c("{", cfg$sql$driver, "}"), sep="="),
                        str_c("Server",   cfg$sql$server,                  sep="="),
