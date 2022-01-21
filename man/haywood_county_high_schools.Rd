@@ -4,11 +4,13 @@
 \name{haywood_county_high_schools}
 \alias{haywood_county_high_schools}
 \title{All current high schools and codes for Haywood County.}
-\format{A data frame with 4 rows and 2 variable:
+\format{
+A data frame with 4 rows and 2 variable:
 \describe{
   \item{School}{School Name}
   \item{Institution_ID}{The Colleague institution ID}
-}}
+}
+}
 \usage{
 haywood_county_high_schools
 }

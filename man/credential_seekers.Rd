@@ -4,8 +4,11 @@
 \alias{credential_seekers}
 \title{Return a data frame of students who are curriculum credential seekers (seeking an Associate's, Diploma, or Certificate)}
 \usage{
-credential_seekers(report_years = NA_integer_,
-  report_semesters = NA_character_, exclude_hs = FALSE)
+credential_seekers(
+  report_years = NA_integer_,
+  report_semesters = NA_character_,
+  exclude_hs = FALSE
+)
 }
 \arguments{
 \item{report_years}{The year or a list of years of the fall term for the data. If unspecified, all years are returned.}

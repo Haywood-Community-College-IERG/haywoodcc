@@ -4,9 +4,15 @@
 \alias{merge_files}
 \title{Merge all files in a specified path}
 \usage{
-merge_files(path = getwd(), pattern = "*", type = "csv",
-  FNvar = "", FUN = "", col_types = cols(.default = col_character()),
-  ...)
+merge_files(
+  path = getwd(),
+  pattern = "*",
+  type = "csv",
+  FNvar = "",
+  FUN = NA,
+  col_types = cols(.default = col_character()),
+  ...
+)
 }
 \arguments{
 \item{path}{Defaults to the current working directory using getwd()}

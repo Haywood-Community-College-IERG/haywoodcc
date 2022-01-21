@@ -4,9 +4,13 @@
 \alias{nsc_request_se}
 \title{Create a National Student Clearinghouse Subsequent Enrollment (SE) request file}
 \usage{
-nsc_request_se(df, config, path = getwd(),
+nsc_request_se(
+  df,
+  config,
+  path = getwd(),
   fn = paste0(deparse(substitute(df)), "_SE.tsv"),
-  search = format(Sys.Date(), "\%Y\%m\%d"))
+  search = format(Sys.Date(), "\%Y\%m\%d")
+)
 }
 \arguments{
 \item{df}{Dataframe to convert into format for submission to NSC}

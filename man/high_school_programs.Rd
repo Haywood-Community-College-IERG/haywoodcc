@@ -4,10 +4,12 @@
 \name{high_school_programs}
 \alias{high_school_programs}
 \title{All current high school program codes.}
-\format{A data frame with 41 rows and 1 variable:
+\format{
+A data frame with 41 rows and 1 variable:
 \describe{
   \item{Program}{Program code}
-}}
+}
+}
 \usage{
 high_school_programs
 }

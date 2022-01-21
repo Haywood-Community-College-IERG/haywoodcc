@@ -4,8 +4,7 @@
 \alias{getColleagueData}
 \title{Return a data from data warehouse Colleague tables.}
 \usage{
-getColleagueData(file, schema = "history", version = "latest",
-  sep = ".")
+getColleagueData(file, schema = "history", version = "latest", sep = ".")
 }
 \arguments{
 \item{file}{The name of the Colleague file to return}

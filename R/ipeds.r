@@ -1,5 +1,11 @@
 pkg.env <- new.env(parent = emptyenv())
 
+#
+# require(magrittr)
+# require(dplyr)
+# require(stringr)
+#
+
 #' Return enrollment for specified term as of the IPEDS reporting date of October 15
 #'
 #' All data comes from CCDW_HIST SQL Server database
@@ -246,6 +252,22 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
         select( Program = ACAD.PROGRAMS.ID ) %>%
         collect()
 
+    students_stu_types <- getColleagueData( "STUDENTS__STU_TYPES", version="history" ) %>%
+        select( ID = STUDENTS.ID,
+                Student_Type = STU.TYPES,
+                Student_Type_Date = STU.TYPE.DATES,
+                Student_Type_End_Date = STU.TYPE.END.DATES,
+                EffectiveDatetime ) %>%
+        collect() %>%
+        filter( Student_Type %in% c("HUSK","DUAL","CCPP","ECOL") )
+
+    students <- getColleagueData( "STUDENTS" ) %>%
+        select( ID = STUDENTS.ID,
+                EffectiveDatetime ) %>%
+        collect() %>%
+        inner_join( students_stu_types, by=c("ID","EffectiveDatetime") ) %>%
+        select( -EffectiveDatetime )
+
     #
     # Get program dates (this is a multi-valued field that needs to be joined with full table).
     #
@@ -269,7 +291,6 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
     credential_seeking <- getColleagueData( "STUDENT_PROGRAMS" ) %>%
         select( ID = STPR.STUDENT,
                 Program = STPR.ACAD.PROGRAM,
-                Academic_Level = 
                 EffectiveDatetime ) %>%
         collect() %>%
         inner_join( acad_programs, by="Program" ) %>%
@@ -291,6 +312,16 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
         filter( Program_Start_Date <= Term_Census_Date,
                 Program_End_Date >= Term_Census_Date,
                 Credential_Seeker > 0 ) %>%
+
+        left_join( students, by="ID" ) %>%
+        mutate( hs_student = (Student_Type_Date <= Term_Census_Date) & (Student_Type_End_Date >= Term_Census_Date) ) %>%
+        mutate( hs_student = coalesce(hs_student,FALSE) ) %>%
+        mutate( keep = case_when(
+            exclude_hs ~ case_when( hs_student ~ FALSE, TRUE ~ TRUE ),
+            TRUE ~ TRUE
+            )) %>%
+        filter( keep ) %>%
+
         select( ID, Term_ID, Credential_Seeker ) %>%
         distinct() %>%
         inner_join( reporting_terms %>% select(Term_ID), by = "Term_ID" )
