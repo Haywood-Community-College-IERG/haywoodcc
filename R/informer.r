@@ -15,7 +15,7 @@ pkg.env$cfg = NA_character_
 getCfg <- function( cfg_fn="config.yml", cfg_path=".", reload=FALSE ) {
 
     cfg <- pkg.env$cfg
-    if (typeof(pkg.env$cfg) == "character" || reload) {
+    if (typeof(pkg.env$cfg) == "character" || typeof(pkg.env$cfg) == "NULL" || reload) {
         cfg_full_path <- fs::path(cfg_path,cfg_fn)
 
         if (fs::file_exists(cfg_full_path)) {
