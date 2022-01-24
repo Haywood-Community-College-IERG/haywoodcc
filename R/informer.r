@@ -21,7 +21,7 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
     #cfg <- pkg.env$cfg
     cfg <- env_get(pkg.env, "cfg", default=NA)
 
-    if (is.na(cfg) || reload) {
+    if (is.na(cfg) || is.null(cfg) || reload) {
         # Use a cached version unless reload is specified.
         #
         # If a parameter was passed for cfg_full_path, cfg_fn, or cfg_path, then use that, Otherwise...
