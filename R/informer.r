@@ -18,17 +18,22 @@ getCfg <- function( cfg_fn="config.yml", cfg_path=".", reload=FALSE ) {
     #cfg <- pkg.env$cfg
     cfg <- env_get(pkg.env, "cfg", default=NA)
 
-    if (is.na(cfg)) {
+    if (is.na(cfg) || reload) {
 #    if (typeof(pkg.env$cfg) == "character" || typeof(pkg.env$cfg) == "NULL" || reload) {
-        cfg_full_path <- fs::path(cfg_path,cfg_fn)
+        opt_cfg_fn <- getOption("haywoodcc.cfg.fn", default=cfg_fn)
+        opt_cfg_path <- getOption("haywoodcc.cfg.path", default=cfg_path)
+        opt_cfg_full_path <- getOption("haywoodcc.cfg.full_path", default=NA_character_)
+
+        if (!is.na(opt_cfg_full_path)) {
+            cfg_full_path = opt_cfg_full_path
+        } else {
+            cfg_full_path <- fs::path(cfg_path,cfg_fn)
+        }
 
         if (fs::file_exists(cfg_full_path)) {
             cfg_l <- yaml::yaml.load_file(cfg_full_path)
-            if (cfg_l$config$location == "self") {
-                cfg = cfg_l
-                env_poke(pkg.env, "cfg_full_path", cfg_full_path)
-#                pkg.env$cfg_full_path <- cfg_full_path
-            } else {
+
+            if (cfg_l$config$location != "self") {
                 cfg_full_path <- fs::path(cfg_l$config$location,cfg_fn)
 
                 if (fs::file_exists(cfg_full_path)) {
@@ -36,6 +41,10 @@ getCfg <- function( cfg_fn="config.yml", cfg_path=".", reload=FALSE ) {
                     env_poke(pkg.env, "cfg_full_path", cfg_full_path)
 #                    pkg.env$cfg_full_path <- cfg_full_path
                 }
+            } else {
+                cfg = cfg_l
+                env_poke(pkg.env, "cfg_full_path", cfg_full_path)
+#                pkg.env$cfg_full_path <- cfg_full_path
             }
 
             env_poke(pkg.env, "cfg", cfg)
