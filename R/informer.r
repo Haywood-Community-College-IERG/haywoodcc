@@ -1,4 +1,4 @@
-pkg.env <- new.env(parent = emptyenv())
+pkg.env <- rlang::env(parent = rlang::empty_env())
 
 #pkg.env$cfg = NA_character_
 
