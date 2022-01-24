@@ -10,6 +10,7 @@ pkg.env <- new.env(parent = emptyenv())
 #' @param cfg_fn The file name for the YAML configuration file. Defaults to config.yml.
 #' @param cfg_path The file path to the YAML configuration file. Defaults to ".".
 #' @param reload Force a reload of the config.
+#' @importFrom rlang env_get env_poke
 #' @export
 #'
 getCfg <- function( cfg_fn="config.yml", cfg_path=".", reload=FALSE ) {
