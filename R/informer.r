@@ -41,54 +41,54 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
 
         if (is.na(cfg_full_path) && is.na(cfg_fn) && is.na(cfg_path)) {
 
-            print(glue::glue("WHATIS opt_cfg_full_path: {opt_cfg_full_path}"))
-            print(glue::glue("WHATIS env_cfg_full_path: {env_cfg_full_path}"))
+            #print(glue::glue("WHATIS opt_cfg_full_path: {opt_cfg_full_path}"))
+            #print(glue::glue("WHATIS env_cfg_full_path: {env_cfg_full_path}"))
 
             if (!is.na(opt_cfg_full_path) && (opt_cfg_full_path != "")) {
-                print(glue::glue("Using opt_cfg_full_path: {opt_cfg_full_path}"))
+                #print(glue::glue("Using option haywoodcc.cfg.full_path [{opt_cfg_full_path}]"))
                 cfg_full_path = opt_cfg_full_path
             } else if (!is.na(opt_cfg_fn) || !is.na(opt_cfg_path)) {
                 if (!is.na(opt_cfg_fn)) {
-                    print(glue::glue("Using opt_cfg_fn: {opt_cfg_fn}"))
+                    #print(glue::glue("Using option haywoodcc.cfg.fn [{opt_cfg_fn}]"))
                     cfg_fn <- opt_cfg_fn
                 } else if (!is.na(env_cfg_fn) && (env_cfg_fn != "")) {
-                    print(glue::glue("Using env_cfg_fn: {env_cfg_fn}"))
+                    #print(glue::glue("Using environtment HAYWOODCC_CFG_FN [{env_cfg_fn}]"))
                     cfg_fn <- env_cfg_fn
                 } else {
-                    print(glue::glue("Using dflt_cfg_fn: {dflt_cfg_fn}"))
+                    #print(glue::glue("Using dflt_cfg_fn: {dflt_cfg_fn}"))
                     cfg_fn = dflt_cfg_fn
                 }
                 if (!is.na(opt_cfg_path)) {
-                    print(glue::glue("Using opt_cfg_path: {opt_cfg_path}"))
+                    #print(glue::glue("Using option haywoodcc.cfg.path [{opt_cfg_path}]"))
                     cfg_path <- opt_cfg_path
                 } else if (!is.na(env_cfg_path) && (env_cfg_path != "")) {
-                    print(glue::glue("Using env_cfg_path: {env_cfg_path}"))
+                    #print(glue::glue("Using environtment HAYWOODCC_CFG_PATH [{env_cfg_path}]"))
                     cfg_path <- env_cfg_path
                 } else {
-                    print(glue::glue("Using dflt_cfg_path: {dflt_cfg_path}"))
+                    #print(glue::glue("Using dflt_cfg_path: {dflt_cfg_path}"))
                     cfg_path <- dflt_cfg_path
                 }
 
                 cfg_full_path <- fs::path(cfg_path,cfg_fn)
 
             } else if (!is.na(env_cfg_full_path) && (env_cfg_full_path != "")) {
-                print(glue::glue("Using env_cfg_full_path: {env_cfg_full_path}"))
+                #print(glue::glue("Using env_cfg_full_path: {env_cfg_full_path}"))
                 cfg_full_path = env_cfg_full_path
 
             } else if (!is.na(env_cfg_fn) || !is.na(env_cfg_path)) {
                 if (!is.na(env_cfg_fn) && (env_cfg_fn != "")) {
-                    print(glue::glue("Using env_cfg_fn: {env_cfg_fn}"))
+                    #print(glue::glue("Using environtment HAYWOODCC_CFG_FN [{env_cfg_fn}]"))
                     cfg_fn <- env_cfg_fn
                 } else {
-                    print(glue::glue("Using dflt_cfg_fn: {dflt_cfg_fn}"))
+                    #print(glue::glue("Using dflt_cfg_fn: {dflt_cfg_fn}"))
                     cfg_fn = dflt_cfg_fn
                 }
 
                 if (!is.na(env_cfg_path) && (env_cfg_path != "")) {
-                    print(glue::glue("Using env_cfg_path: {env_cfg_path}"))
+                    #print(glue::glue("Using environtment HAYWOODCC_CFG_PATH [{env_cfg_path}]"))
                     cfg_path <- env_cfg_path
                 } else {
-                    print(glue::glue("Using dflt_cfg_path: {dflt_cfg_path}"))
+                    #print(glue::glue("Using dflt_cfg_path: {dflt_cfg_path}"))
                     cfg_path <- dflt_cfg_path
                 }
 
@@ -99,42 +99,42 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
 
             if (is.na(cfg_full_path)) {
                 if (!is.na(cfg_fn)) {
-                    print(glue::glue("Using cfg_fn: {cfg_fn}"))
+                    #print(glue::glue("Using cfg_fn: {cfg_fn}"))
                 } else if (!is.na(opt_cfg_fn)) {
-                    print(glue::glue("Using opt_cfg_fn: {opt_cfg_fn}"))
+                    #print(glue::glue("Using option haywoodcc.cfg.fn [{opt_cfg_fn}]"))
                     cfg_fn <- opt_cfg_fn
                 } else if (!is.na(env_cfg_fn) && (env_cfg_fn != "")) {
-                    print(glue::glue("Using env_cfg_fn: {env_cfg_fn}"))
+                    #print(glue::glue("Using environtment HAYWOODCC_CFG_FN [{env_cfg_fn}]"))
                     cfg_fn <- env_cfg_fn
                 } else {
-                    print(glue::glue("Using dflt_cfg_fn: {dflt_cfg_fn}"))
+                    #print(glue::glue("Using dflt_cfg_fn: {dflt_cfg_fn}"))
                     cfg_fn = dflt_cfg_fn
                 }
                 if (!is.na(cfg_path)) {
-                    print(glue::glue("Using cfg_path: {cfg_path}"))
+                    #print(glue::glue("Using cfg_path: {cfg_path}"))
                 } else if (!is.na(opt_cfg_path)) {
-                    print(glue::glue("Using opt_cfg_path: {opt_cfg_path}"))
+                    #print(glue::glue("Using option haywoodcc.cfg.path [{opt_cfg_path}]"))
                     cfg_path <- opt_cfg_path
                 } else if (!is.na(env_cfg_path) && (env_cfg_path != "")) {
-                    print(glue::glue("Using env_cfg_path: {env_cfg_path}"))
+                    #print(glue::glue("Using environtment HAYWOODCC_CFG_PATH [{env_cfg_path}]"))
                     cfg_path <- env_cfg_path
                 } else {
-                    print(glue::glue("Using dflt_cfg_path: {dflt_cfg_path}"))
+                    #print(glue::glue("Using dflt_cfg_path: {dflt_cfg_path}"))
                     cfg_path <- dflt_cfg_path
                 }
 
                 cfg_fn <- dplyr::if_else(is.na(cfg_fn),dflt_cfg_fn,cfg_fn)
                 cfg_path <- dplyr::if_else(is.na(cfg_path),dflt_cfg_path,cfg_path)
 
-                print(glue::glue("Using cfg_fn and cfg_path: {cfg_fn} and {cfg_path}"))
+                #print(glue::glue("Using cfg_fn and cfg_path: {cfg_fn} and {cfg_path}"))
 
                 cfg_full_path <- fs::path(cfg_path,cfg_fn)
             } else {
-                print(glue::glue("Using cfg_full_path: {cfg_full_path}"))
+                #print(glue::glue("Using cfg_full_path: {cfg_full_path}"))
             }
         }
 
-        print(glue::glue("FINAL cfg_full_path: {cfg_full_path}"))
+        print(glue::glue("Loading configuration from [{cfg_full_path}]"))
 
         if (fs::file_exists(cfg_full_path)) {
             cfg_l <- yaml::yaml.load_file(cfg_full_path)
@@ -155,7 +155,7 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
         }
     } else {
         cfg_full_path <- env_get(pkg.env, "cfg_full_path", default=NA)
-        print(glue::glue("Using cached cfg: {cfg_full_path}"))
+        #print(glue::glue("Using cached cfg: {cfg_full_path}"))
     }
     getCfg <- cfg
 }
