@@ -13,21 +13,62 @@ pkg.env <- rlang::env(parent = rlang::empty_env())
 #' @importFrom rlang env_get env_poke
 #' @export
 #'
-getCfg <- function( cfg_fn="config.yml", cfg_path=".", reload=FALSE ) {
+getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=NA_character_, reload=FALSE ) {
+
+    dflt_cfg_fn = "config.yml"
+    dflt_cfg_path = "."
 
     #cfg <- pkg.env$cfg
     cfg <- env_get(pkg.env, "cfg", default=NA)
 
     if (is.na(cfg) || reload) {
-#    if (typeof(pkg.env$cfg) == "character" || typeof(pkg.env$cfg) == "NULL" || reload) {
-        opt_cfg_fn <- getOption("haywoodcc.cfg.fn", default=cfg_fn)
-        opt_cfg_path <- getOption("haywoodcc.cfg.path", default=cfg_path)
-        opt_cfg_full_path <- getOption("haywoodcc.cfg.full_path", default=NA_character_)
+        # Use a cached version unless reload is specified.
+        #
+        # If a parameter was passed for cfg_full_path, cfg_fn, or cfg_path, then use that, Otherwise...
+        #
+        # Look for haywoodcc.cfg.full_path specified as an option and, if found, use it.
+        # If no option found, check for the environment variable HAYWOODCC_CFG_FULL_PATH.
+        # If that is not found, look for the file name and path parts in the same order.
+        # If nothing is specified in the options or environment, use the default
 
-        if (!is.na(opt_cfg_full_path)) {
-            cfg_full_path = opt_cfg_full_path
+        if (is.na(cfg_full_path) && is.na(cfg_fn) && is.na(cfg_path)) {
+            opt_cfg_full_path <- getOption("haywoodcc.cfg.full_path", default=NA_character_)
+            env_cfg_full_path <- Sys.getenv("HAYWOODCC_CFG_FULL_PATH")
+
+            if (!is.na(opt_cfg_full_path)) {
+                cfg_full_path = opt_cfg_full_path
+            } else if (!is.na(env_cfg_full_path) && (env_cfg_full_path != "")) {
+                opt_cfg_fn <- getOption("haywoodcc.cfg.fn", default=NA_character_)
+                opt_cfg_path <- getOption("haywoodcc.cfg.path", default=NA_character_)
+                env_cfg_fn <- Sys.getenv("HAYWOODCC_CFG_FN")
+                env_cfg_path <- Sys.getenv("HAYWOODCC_CFG_PATH")
+
+                if (!is.na(opt_cfg_fn)) {
+                    cfg_fn <- opt_cfg_fn
+                } else if (!is.na(env_cfg_fn) && (env_cfg_fn != "")) {
+                    cfg_fn <- env_cfg_fn
+                } else {
+                    cfg_fn = dflt_cfg_fn
+                }
+
+                if (!is.na(opt_cfg_path)) {
+                    cfg_path <- opt_cfg_path
+                } else if (!is.na(env_cfg_path) && (env_cfg_path != "")) {
+                    cfg_path <- env_cfg_path
+                } else {
+                    cfg_path <- dflt_cfg_path
+                }
+
+                cfg_full_path <- fs::path(cfg_path,cfg_fn)
+            }
         } else {
-            cfg_full_path <- fs::path(cfg_path,cfg_fn)
+
+            if (is.na(cfg_full_path)) {
+                cfg_fn <- dplyr::if_else(is.na(cfg_fn),dflt_cfg_fn,cfg_fn)
+                cfg_path <- dplyr::if_else(is.na(cfg_path),dflt_cfg_path,cfg_path)
+
+                cfg_full_path <- fs::path(cfg_path,cfg_fn)
+            }
         }
 
         if (fs::file_exists(cfg_full_path)) {
@@ -39,16 +80,13 @@ getCfg <- function( cfg_fn="config.yml", cfg_path=".", reload=FALSE ) {
                 if (fs::file_exists(cfg_full_path)) {
                     cfg <- yaml::yaml.load_file(cfg_full_path)
                     env_poke(pkg.env, "cfg_full_path", cfg_full_path)
-#                    pkg.env$cfg_full_path <- cfg_full_path
                 }
             } else {
                 cfg = cfg_l
                 env_poke(pkg.env, "cfg_full_path", cfg_full_path)
-#                pkg.env$cfg_full_path <- cfg_full_path
             }
 
             env_poke(pkg.env, "cfg", cfg)
-#            pkg.env$cfg <- cfg
         }
     }
     getCfg <- cfg
