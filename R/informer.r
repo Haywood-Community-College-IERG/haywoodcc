@@ -1,6 +1,6 @@
 pkg.env <- new.env(parent = emptyenv())
 
-pkg.env$cfg = NA_character_
+#pkg.env$cfg = NA_character_
 
 #' Load the YAML configuration file.
 #'
@@ -14,25 +14,31 @@ pkg.env$cfg = NA_character_
 #'
 getCfg <- function( cfg_fn="config.yml", cfg_path=".", reload=FALSE ) {
 
-    cfg <- pkg.env$cfg
-    if (typeof(pkg.env$cfg) == "character" || typeof(pkg.env$cfg) == "NULL" || reload) {
+    #cfg <- pkg.env$cfg
+    cfg <- env_get(pkg.env, "cfg", default=NA)
+
+    if (is.na(cfg)) {
+#    if (typeof(pkg.env$cfg) == "character" || typeof(pkg.env$cfg) == "NULL" || reload) {
         cfg_full_path <- fs::path(cfg_path,cfg_fn)
 
         if (fs::file_exists(cfg_full_path)) {
             cfg_l <- yaml::yaml.load_file(cfg_full_path)
             if (cfg_l$config$location == "self") {
                 cfg = cfg_l
-                pkg.env$cfg_full_path <- cfg_full_path
+                env_poke(pkg.env, "cfg_full_path", cfg_full_path)
+#                pkg.env$cfg_full_path <- cfg_full_path
             } else {
                 cfg_full_path <- fs::path(cfg_l$config$location,cfg_fn)
 
                 if (fs::file_exists(cfg_full_path)) {
                     cfg <- yaml::yaml.load_file(cfg_full_path)
-                    pkg.env$cfg_full_path <- cfg_full_path
+                    env_poke(pkg.env, "cfg_full_path", cfg_full_path)
+#                    pkg.env$cfg_full_path <- cfg_full_path
                 }
             }
 
-            pkg.env$cfg <- cfg
+            env_poke(pkg.env, "cfg", cfg)
+#            pkg.env$cfg <- cfg
         }
     }
     getCfg <- cfg
