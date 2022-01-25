@@ -9,9 +9,11 @@ getColleagueData(
   schema = "history",
   version = "latest",
   sep = ".",
-  cfg = NA_character,
-  cfg_fn = "config.yml",
-  cfg_path = "."
+  cfg = NA_character_,
+  cfg_full_path = NA_character_,
+  cfg_fn = NA_character_,
+  cfg_path = NA_character_,
+  reload = FALSE
 )
 }
 \arguments{
@@ -25,9 +27,9 @@ getColleagueData(
 
 \item{cfg}{A YAML configuration file with sql section that includes driver, server, db, and schema_history.}
 
-\item{cfg_fn}{The file name for the YAML configuration file. Defaults to config.yml.}
+\item{cfg_fn}{The file name for the YAML configuration file. Defaults to NA.}
 
-\item{cfg_path}{The file path to the YAML configuration file. Defaults to ".".}
+\item{cfg_path}{The file path to the YAML configuration file. Defaults to NA.}
 }
 \description{
 Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv of

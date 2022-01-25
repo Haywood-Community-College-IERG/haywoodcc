@@ -169,15 +169,25 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
 #' @param schema Which schema should be used. Needed for non-Colleague tables.
 #' @param version Specify which version to include. Default is for the latest data. Any other value will return the dated file.
 #' @param cfg A YAML configuration file with sql section that includes driver, server, db, and schema_history.
-#' @param cfg_fn The file name for the YAML configuration file. Defaults to config.yml.
-#' @param cfg_path The file path to the YAML configuration file. Defaults to ".".
+#' @param cfg_fn The file name for the YAML configuration file. Defaults to NA.
+#' @param cfg_path The file path to the YAML configuration file. Defaults to NA.
 #' @param sep The separator to use in the field names. Default is a '.' as in the original Colleague file.
 #' @export
 #' @importFrom stringr str_c
 #'
-getColleagueData <- function( file, schema="history", version="latest", sep='.', cfg=NA_character, cfg_fn="config.yml", cfg_path="." ) {
+getColleagueData <- function( file, schema="history", version="latest", sep='.',
+                              cfg=NA_character_, cfg_full_path=NA_character_,
+                              cfg_fn=NA_character_, cfg_path=NA_character_,
+                              reload=FALSE) {
 
-    cfg <- getCfg(cfg_fn=cfg_fn, cfg_path=cfg_path)
+
+    if (is.na(cfg) || is.null(cfg)) {
+        cfg <- env_get(pkg.env, "cfg", default=NA)
+
+        if (is.na(cfg) || is.null(cfg)) {
+            cfg <- getCfg(cfg_full_path=cfg_full_path, cfg_fn=cfg_fn, cfg_path=cfg_path, reload=reload)
+        }
+    }
 
     conn_str <- str_c( str_c("Driver",   str_c("{", cfg$sql$driver, "}"), sep="="),
                        str_c("Server",   cfg$sql$server,                  sep="="),
