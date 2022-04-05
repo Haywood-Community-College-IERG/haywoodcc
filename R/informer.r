@@ -169,6 +169,7 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
 #' @param section The section for the new variable
 #' @param variable The name of the new variable
 #' @param value The value for the new variable
+#' @param cfg A YAML configuration file with sql section that includes driver, server, db, and schema_history.
 #' @param cfg_full_path Provide the full path to the YAML configuration file. Defaults to NA.
 #' @param cfg_fn The file name for the YAML configuration file. Defaults to config.yml.
 #' @param cfg_path The file path to the YAML configuration file. Defaults to ".".
@@ -177,7 +178,10 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
 #' @export
 #'
 setCfg <- function( section, variable, value,
-                    cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=NA_character_, reload=FALSE ) {
+                    cfg=NA_character_, cfg_full_path=NA_character_,
+                    cfg_fn=NA_character_, cfg_path=NA_character_,
+                    reload=FALSE
+                    ) {
     if (is.na(cfg) || is.null(cfg)) {
         cfg <- rlang::env_get(pkg.env, "cfg", default=NA)
 
