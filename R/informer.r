@@ -193,6 +193,7 @@ setCfg <- function( section, variable, value,
     t <- list(value)
     names(t) <- variable
     cfg[section] <- list(t)
+    rlang::env_poke(pkg.env, "cfg", cfg)
 }
 
 #' Return a data from data warehouse Colleague tables.
