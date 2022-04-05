@@ -183,7 +183,7 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
 #' @importFrom fs path
 #' @importFrom rlang env_get env_poke
 #' @importFrom odbc dbConnect odbc
-#' @importFrom dplyr tbl dplyr::
+#' @importFrom dplyr tbl
 #' @importFrom dbplyr in_schema
 #' @importFrom readr read_csv
 #'
@@ -205,11 +205,13 @@ getColleagueData <- function( file,
         }
     }
 
+    if (is.na(cfg$data_source$from_file_path)) {
+        cfg$data_source$from_file_path <- NA_character_
+    }
     if (!is.na(from_file_path)) {
         cfg_from_file_path = from_file_path
     } else {
-        # Ensure this variable has an NA
-        cfg_from_file_path = dplyr::coalesce(cfg$data_source$from_file_path,NA_character_)
+        cfg_from_file_path = cfg$data_source$from_file_path
     }
 
     if (is.na(cfg_from_file_path)) {
