@@ -164,6 +164,33 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
     getCfg <- cfg
 }
 
+#' Set a new value in the cached YAML configuration file.
+#'
+#' @param section The section for the new variable
+#' @param variable The name of the new variable
+#' @param value The value for the new variable
+#' @param cfg_full_path Provide the full path to the YAML configuration file. Defaults to NA.
+#' @param cfg_fn The file name for the YAML configuration file. Defaults to config.yml.
+#' @param cfg_path The file path to the YAML configuration file. Defaults to ".".
+#' @param reload Force a reload of the config.
+#' @importFrom rlang env_get
+#' @export
+#'
+setCfg <- function( section, variable, value,
+                    cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=NA_character_, reload=FALSE ) {
+    if (is.na(cfg) || is.null(cfg)) {
+        cfg <- rlang::env_get(pkg.env, "cfg", default=NA)
+
+        if (is.na(cfg) || is.null(cfg)) {
+            cfg <- getCfg(cfg_full_path=cfg_full_path, cfg_fn=cfg_fn, cfg_path=cfg_path, reload=reload)
+        }
+    }
+
+    t <- list(value)
+    names(t) <- variable
+    cfg[section] <- list(t)
+}
+
 #' Return a data from data warehouse Colleague tables.
 #'
 #' Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv of
