@@ -205,9 +205,12 @@ getColleagueData <- function( file,
         }
     }
 
-    if (is.na(cfg$data_source$from_file_path)) {
+    if ("data_source" %nin% names(cfg)) {
+        cfg$data_source$from_file_path <- NA_character_
+    } else if ("from_file_path" %nin% names(cfg$data_source)) {
         cfg$data_source$from_file_path <- NA_character_
     }
+
     if (!is.na(from_file_path)) {
         cfg_from_file_path = from_file_path
     } else {
