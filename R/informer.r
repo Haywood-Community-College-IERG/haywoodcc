@@ -208,7 +208,8 @@ getColleagueData <- function( file,
     if (!is.na(from_file_path)) {
         cfg_from_file_path = from_file_path
     } else {
-        cfg_from_file_path = cfg$data_source$from_file_path
+        # Ensure this variable has an NA
+        cfg_from_file_path = dplyr::coalesce(cfg$data_source$from_file_path,NA_character_)
     }
 
     if (is.na(cfg_from_file_path)) {
