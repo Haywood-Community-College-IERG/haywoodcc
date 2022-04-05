@@ -12,6 +12,9 @@
 #' @export
 #' @importFrom tidyr fill
 #' @importFrom magrittr %<>%
+#' @importFrom tibble as_tibble
+#' @importFrom readr read_csv cols col_character
+#' @importFrom dplyr filter mutate select group_by starts_with last bind_rows left_join arrange
 #'
 nsc_return_se_convert <- function(fn) {
 

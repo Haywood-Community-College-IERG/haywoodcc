@@ -7,10 +7,14 @@ pkg.env <- rlang::env(parent = rlang::empty_env())
 #' Load the specified YAML configuration file. If no file is provided,
 #' load "./config.yml".
 #'
+#' @param cfg_full_path Provide the full path to the YAML configuration file. Defaults to NA.
 #' @param cfg_fn The file name for the YAML configuration file. Defaults to config.yml.
 #' @param cfg_path The file path to the YAML configuration file. Defaults to ".".
 #' @param reload Force a reload of the config.
 #' @importFrom rlang env_get env_poke
+#' @importFrom glue glue
+#' @importFrom yaml yaml.load_file
+#' @importFrom fs path
 #' @export
 #'
 getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=NA_character_, reload=FALSE ) {
@@ -19,7 +23,7 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
     dflt_cfg_path = "."
 
     #cfg <- pkg.env$cfg
-    cfg <- env_get(pkg.env, "cfg", default=NA)
+    cfg <- rlang::env_get(pkg.env, "cfg", default=NA)
 
     if (is.na(cfg) || is.null(cfg) || reload) {
         # Use a cached version unless reload is specified.
@@ -144,17 +148,17 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
 
                 if (fs::file_exists(cfg_full_path)) {
                     cfg <- yaml::yaml.load_file(cfg_full_path)
-                    env_poke(pkg.env, "cfg_full_path", cfg_full_path)
+                    rlang::env_poke(pkg.env, "cfg_full_path", cfg_full_path)
                 }
             } else {
                 cfg = cfg_l
-                env_poke(pkg.env, "cfg_full_path", cfg_full_path)
+                rlang::env_poke(pkg.env, "cfg_full_path", cfg_full_path)
             }
 
-            env_poke(pkg.env, "cfg", cfg)
+            rlang::env_poke(pkg.env, "cfg", cfg)
         }
     } else {
-        cfg_full_path <- env_get(pkg.env, "cfg_full_path", default=NA)
+        cfg_full_path <- rlang::env_get(pkg.env, "cfg_full_path", default=NA)
         #print(glue::glue("Using cached cfg: {cfg_full_path}"))
     }
     getCfg <- cfg
@@ -168,43 +172,89 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
 #' @param file The name of the Colleague file to return
 #' @param schema Which schema should be used. Needed for non-Colleague tables.
 #' @param version Specify which version to include. Default is for the latest data. Any other value will return the dated file.
+#' @param from_file_path Specify path for file. This overrides the use of the database. Defaults to NA.
 #' @param cfg A YAML configuration file with sql section that includes driver, server, db, and schema_history.
+#' @param cfg_full_path Provide the full path to the YAML configuration file. Defaults to NA.
 #' @param cfg_fn The file name for the YAML configuration file. Defaults to NA.
 #' @param cfg_path The file path to the YAML configuration file. Defaults to NA.
 #' @param sep The separator to use in the field names. Default is a '.' as in the original Colleague file.
 #' @export
 #' @importFrom stringr str_c
+#' @importFrom fs path
+#' @importFrom rlang env_get env_poke
+#' @importFrom odbc dbConnect odbc
+#' @importFrom dplyr tbl
+#' @importFrom dbplyr in_schema
+#' @importFrom readr read_csv
 #'
-getColleagueData <- function( file, schema="history", version="latest", sep='.',
+getColleagueData <- function( file,
+                              schema="history", version="latest",
+                              from_file_path=NA_character_,
+                              sep='.',
                               cfg=NA_character_, cfg_full_path=NA_character_,
                               cfg_fn=NA_character_, cfg_path=NA_character_,
-                              reload=FALSE) {
-
+                              reload=FALSE,
+                              ...
+                              ) {
 
     if (is.na(cfg) || is.null(cfg)) {
-        cfg <- env_get(pkg.env, "cfg", default=NA)
+        cfg <- rlang::env_get(pkg.env, "cfg", default=NA)
 
         if (is.na(cfg) || is.null(cfg)) {
             cfg <- getCfg(cfg_full_path=cfg_full_path, cfg_fn=cfg_fn, cfg_path=cfg_path, reload=reload)
         }
     }
 
-    conn_str <- str_c( str_c("Driver",   str_c("{", cfg$sql$driver, "}"), sep="="),
-                       str_c("Server",   cfg$sql$server,                  sep="="),
-                       str_c("Database", cfg$sql$db,                      sep="="),
-                       "Trusted_Connection=Yes",
-                       "Description=Informer.r:getColleagueData()",
-                       sep=";"
-    )
+    if (!exists("cfg") || is.na(cfg$data_source$from_file_path)) {
+        cfg$data_source$from_file_path <- NA_character_
+    }
+    if (!is.na(from_file_path)) {
+        cfg_from_file_path = from_file_path
+    } else {
+        cfg_from_file_path = cfg$data_source$from_file_path
+    }
 
-    ccdwconn <- odbc::dbConnect( odbc::odbc(), .connection_string=conn_str )
+    if (is.na(cfg_from_file_path)) {
+        conn_str <- stringr::str_c( glue::glue("Driver={{{cfg$sql$driver}}}"),
+                                    glue::glue("Server={{{cfg$sql$server}}}"),
+                                    glue::glue("Database={{{cfg$sql$db}}}"),
+                                    "Trusted_Connection=Yes",
+                                    "Description=Informer.r:getColleagueData()",
+                                    sep=";"
+        )
 
-    schema_history <- cfg$sql$schema_history
+        ccdwconn <- odbc::dbConnect( odbc::odbc(), .connection_string=conn_str )
 
-    df <- dplyr::tbl(ccdwconn, dbplyr::in_schema(schema, file) )
+        schema_history <- cfg$sql$schema_history
 
-    if (version == "latest" & schema=="history") {
-        df %<>% filter( CurrentFlag == "Y" )
+        df <- dplyr::tbl(ccdwconn, dbplyr::in_schema(schema, file) )
+
+        if (version == "latest" & schema=="history") {
+            df %<>% filter( CurrentFlag == "Y" )
+        }
+    } else {
+        # Try to find <file> in a folder named <schema>
+        if (file.exists(fs::path(cfg_from_file_path,schema,file,ext = "csv"))) {
+            csvfile <- fs::path(schema,file,ext = "csv")
+        } else {
+            # ..., then look for a file named <schema><sep><file>.csv
+            if (file.exists(fs::path(cfg_from_file_path,stringr::str_c(schema,file,sep=sep), ext="csv"))) {
+                csvfile <- fs::path(glue::glue("{schema}{sep}{file}"), ext="csv")
+            } else {
+                # ..., then look for a file named <file>.csv
+                if (file.exists(fs::path(cfg_from_file_path,file, ext="csv"))) {
+                    csvfile <- fs::path(file, ext="csv")
+                } else {
+                    csvfile <- NA_character_
+                    stop(glue::glue("ERROR: File not found: {file}"))
+                }
+            }
+        }
+
+        if (!exists("show_col_types") && is.na(show_col_types)) {
+            show_col_types = FALSE
+        }
+        df <- readr::read_csv(fs::path(cfg_from_file_path,csvfile), show_col_types = show_col_types)
     }
 
     if (sep != '.') names(df) <- gsub("\\.", sep, names(df))

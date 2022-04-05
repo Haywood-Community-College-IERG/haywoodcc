@@ -11,3 +11,5 @@
 ^cran-comments\.md$
 ^\.travis\.yml$
 ^revdep$
+config.yml
+config.yml.PTR

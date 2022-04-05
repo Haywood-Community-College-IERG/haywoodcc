@@ -12,6 +12,8 @@ getCfg(
 )
 }
 \arguments{
+\item{cfg_full_path}{Provide the full path to the YAML configuration file. Defaults to NA.}
+
 \item{cfg_fn}{The file name for the YAML configuration file. Defaults to config.yml.}
 
 \item{cfg_path}{The file path to the YAML configuration file. Defaults to ".".}
