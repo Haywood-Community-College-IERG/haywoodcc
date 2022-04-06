@@ -28,12 +28,14 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
     if (is.na(cfg) || is.null(cfg) || reload) {
         # Use a cached version unless reload is specified.
         #
-        # If a parameter was passed for cfg_full_path, cfg_fn, or cfg_path, then use that, Otherwise...
+        # If a parameter was passed for cfg_full_path, cfg_fn, or cfg_path,
+        # then use that, Otherwise, do the first from...
         #
-        # Look for haywoodcc.cfg.full_path specified as an option and, if found, use it.
-        # If no option found, check for the environment variable HAYWOODCC_CFG_FULL_PATH.
-        # If that is not found, look for the file name and path parts in the same order.
-        # If nothing is specified in the options or environment, use the default
+        # 1. Look for the file name and path parts in the current folder.
+        # 2. Check for environment variables HAYWOODCC_CFG_FULL_PATH, HAYWOODCC_CFG_PATH, HAYWOODCC_CFG_FN.
+        # 3. Check for haywoodcc.cfg.full_path, haywoodcc.cfg.path, haywoodcc.cfg.fn options.
+        # 4. Return NA
+        # TODO: This needs to be fixed to reflect the above comment
 
         opt_cfg_full_path <- getOption("haywoodcc.cfg.full_path", default=NA_character_)
         opt_cfg_fn <- getOption("haywoodcc.cfg.fn", default=NA_character_)

@@ -256,9 +256,10 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
         dplyr::collect() %>%
         dplyr::filter( Student_Type %in% c("HUSK","DUAL","CCPP","ECOL") )
 
-    students <- getColleagueData( "STUDENTS" ) %>%
+    students <- getColleagueData( "STUDENTS__STU_TYPES" ) %>%
         dplyr::select( ID = STUDENTS.ID,
                        EffectiveDatetime ) %>%
+        dplyr::distinct() %>%
         dplyr::collect() %>%
         dplyr::inner_join( students_stu_types, by=c("ID","EffectiveDatetime") ) %>%
         dplyr::select( -EffectiveDatetime )
@@ -283,10 +284,11 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
     #
     # Credential-seekers are those in A, D, or C programs
     #
-    credential_seeking <- getColleagueData( "STUDENT_PROGRAMS" ) %>%
+    credential_seeking <- getColleagueData( "STUDENT_PROGRAMS__STPR_DATES" ) %>%
         dplyr::select( ID = STPR.STUDENT,
                        Program = STPR.ACAD.PROGRAM,
                        EffectiveDatetime ) %>%
+        dplyr::distinct() %>%
         dplyr::collect() %>%
         dplyr::inner_join( acad_programs, by="Program" ) %>%
         dplyr::inner_join( student_programs__dates, by = c("ID", "Program", "EffectiveDatetime") ) %>%
