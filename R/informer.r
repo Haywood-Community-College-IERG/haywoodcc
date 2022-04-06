@@ -286,10 +286,10 @@ getColleagueData <- function( file,
             }
         }
 
-        if (!exists("show_col_types") && is.na(show_col_types)) {
-            show_col_types = FALSE
-        }
-        df <- readr::read_csv(fs::path(cfg_from_file_path,csvfile), show_col_types = show_col_types)
+        #if (!exists("show_col_types") && is.na(show_col_types)) {
+        #    show_col_types = FALSE
+        #}
+        df <- readr::read_csv(fs::path(cfg_from_file_path,csvfile), show_col_types = FALSE)
     }
 
     if (sep != '.') names(df) <- gsub("\\.", sep, names(df))
