@@ -51,7 +51,7 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
             #print(glue::glue("WHATIS env_cfg_full_path: {env_cfg_full_path}"))
 
             # 1. Look for the file name and path parts in the current folder.
-            if (fs::path(dflt_cfg_path,dflt_cfg_fn)){
+            if (fs::file_exists(fs::path(dflt_cfg_path,dflt_cfg_fn))) {
                 cfg_full_path <- fs::path(dflt_cfg_path,dflt_cfg_fn)
             } else {
 
