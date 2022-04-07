@@ -252,16 +252,17 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
                        Student_Type = STU.TYPES,
                        Student_Type_Date = STU.TYPE.DATES,
                        Student_Type_End_Date = STU.TYPE.END.DATES,
+                       CurrentFlag,
                        EffectiveDatetime ) %>%
-        dplyr::collect() %>%
-        dplyr::filter( Student_Type %in% c("HUSK","DUAL","CCPP","ECOL") )
+        dplyr::collect()
 
-    students <- getColleagueData( "STUDENTS__STU_TYPES" ) %>%
-        dplyr::select( ID = STUDENTS.ID,
-                       EffectiveDatetime ) %>%
+    students <- students_stu_types %>%
+        dplyr::filter( CurrentFlag == "Y" ) %>%
+        dplyr::select( ID, EffectiveDatetime ) %>%
         dplyr::distinct() %>%
-        dplyr::collect() %>%
-        dplyr::inner_join( students_stu_types, by=c("ID","EffectiveDatetime") ) %>%
+        dplyr::inner_join( students_stu_types %>%
+                               dplyr::filter( Student_Type %in% c("HUSK","DUAL","CCPP","ECOL") ),
+                           by=c("ID","EffectiveDatetime") ) %>%
         dplyr::select( -EffectiveDatetime )
 
     #
