@@ -146,15 +146,15 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
         }
 
         print(glue::glue("Loading configuration from [{cfg_full_path}]"))
-        print(glue::glue("DEBUG: Current dir = [{getwd()}]"))
+        #print(glue::glue("DEBUG: Current dir = [{getwd()}]"))
 
         if (fs::file_exists(cfg_full_path)) {
             cfg_l <- yaml::yaml.load_file(cfg_full_path)
 
-            print(glue::glue("DEBUG: typeof(cfg_l) = [{typeof(cfg_l)}]"))
-            print(glue::glue("DEBUG: cfg_l = [{cfg_l}]"))
-            print(glue::glue("DEBUG: cfg_l$config          = [{cfg_l$config}]"))
-            print(glue::glue("DEBUG: cfg_l$config$location = [{cfg_l$config$location}]"))
+            # print(glue::glue("DEBUG: sr(cfg_l) = [{str(cfg_l)}]"))
+            # print(glue::glue("DEBUG: cfg_l = [{cfg_l}]"))
+            # print(glue::glue("DEBUG: cfg_l$config          = [{cfg_l$config}]"))
+            # print(glue::glue("DEBUG: cfg_l$config$location = [{cfg_l$config$location}]"))
 
             if ((typeof(cfg_l) == "list") || (cfg_l$config$location != "self")) {
 

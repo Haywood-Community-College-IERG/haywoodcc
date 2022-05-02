@@ -9,3 +9,6 @@
 /R/config.yml
 /R/test_do_not_src_control.r
 config.yml
+config.yml.PTR
+renv
+_Archive.zip
