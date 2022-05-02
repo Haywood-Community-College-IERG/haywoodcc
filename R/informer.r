@@ -153,6 +153,8 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
             if (cfg_l$config$location != "self") {
                 cfg_full_path <- fs::path(cfg_l$config$location,cfg_fn)
 
+                print(glue::glue("Redirecting loading configuration from [{cfg_full_path}]"))
+
                 if (fs::file_exists(cfg_full_path)) {
                     cfg <- yaml::yaml.load_file(cfg_full_path)
                     rlang::env_poke(pkg.env, "cfg_full_path", cfg_full_path)
@@ -165,7 +167,7 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
             rlang::env_poke(pkg.env, "cfg", cfg)
         }
     } else {
-        cfg_full_path <- rlang::env_get(pkg.env, "cfg_full_path", default=NA)
+        cfg <- rlang::env_get(pkg.env, "cfg", default=NA)
         #print(glue::glue("Using cached cfg: {cfg_full_path}"))
     }
     getCfg <- cfg
