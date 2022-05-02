@@ -156,9 +156,10 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
             print(glue::glue("DEBUG: cfg_l$config          = [{cfg_l$config}]"))
             print(glue::glue("DEBUG: cfg_l$config$location = [{cfg_l$config$location}]"))
 
-            if ((typeof(cfg_l) == "list") | (cfg_l$config$location != "self")) {
+            if ((typeof(cfg_l) == "list") || (cfg_l$config$location != "self")) {
 
-                if ((typeof(cfg_l) == "list") & (cfg_l$location == "self")) {
+                return(cfg_l)
+                if ((typeof(cfg_l) == "list") && (cfg_l$location == "self")) {
                     print(glue::glue("ERROR config$location == self but no other YAML records"))
                     return(NA)
                 } else {
