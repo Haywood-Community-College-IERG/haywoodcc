@@ -156,8 +156,18 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
             print(glue::glue("DEBUG: cfg_l$config          = [{cfg_l$config}]"))
             print(glue::glue("DEBUG: cfg_l$config$location = [{cfg_l$config$location}]"))
 
-            if (cfg_l$config$location != "self") {
-                cfg_full_path <- fs::path(cfg_l$config$location,cfg_fn)
+            if ((typeof(cfg_l) == "list") | (cfg_l$config$location != "self")) {
+
+                if ((typeof(cfg_l) == "list") & (cfg_l$location == "self")) {
+                    print(glue::glue("ERROR config$location == self but no other YAML records"))
+                    return(NA)
+                } else {
+                    if (typeof(cfg_l) == "list") {
+                        cfg_full_path <- fs::path(cfg_l$location,cfg_fn)
+                    } else {
+                        cfg_full_path <- fs::path(cfg_l$config$location,cfg_fn)
+                    }
+                }
 
                 print(glue::glue("Redirecting loading configuration from [{cfg_full_path}]"))
 
