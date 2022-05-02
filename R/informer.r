@@ -153,6 +153,8 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
             if (cfg_l$config$location != "self") {
                 cfg_full_path <- fs::path(cfg_l$config$location,cfg_fn)
 
+                print(glue::glue("Redirecting to configuration from [{cfg_full_path}]"))
+
                 if (fs::file_exists(cfg_full_path)) {
                     cfg <- yaml::yaml.load_file(cfg_full_path)
                     rlang::env_poke(pkg.env, "cfg_full_path", cfg_full_path)
@@ -165,7 +167,7 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
             rlang::env_poke(pkg.env, "cfg", cfg)
         }
     } else {
-        cfg_full_path <- rlang::env_get(pkg.env, "cfg_full_path", default=NA)
+        cfg <- rlang::env_get(pkg.env, "cfg", default=NA)
         #print(glue::glue("Using cached cfg: {cfg_full_path}"))
     }
     getCfg <- cfg
@@ -275,28 +277,54 @@ getColleagueData <- function( file,
             df %<>% filter( CurrentFlag == "Y" )
         }
     } else {
-        # Try to find <file> in a folder named <schema>
-        if (file.exists(fs::path(cfg_from_file_path,schema,file,ext = "csv"))) {
-            csvfile <- fs::path(schema,file,ext = "csv")
+
+        # path <- "."
+        # schema = "history"
+        # file <- "PERSON"
+        # cfg_from_file_path <- fs::path(".","data")
+        #
+        # schema_path <- fs::path(cfg_from_file_path,schema)
+        #
+        # file_pattern <- glue::glue("^{file}*.csv")
+        # schema_file_pattern <- glue::glue("^{schema}.{file}*.csv")
+
+        lf <- function(path,pattern) {
+            df <- list.files( path        = path,
+                              pattern     = pattern,
+                              full.names  = TRUE,
+                              ignore.case = TRUE,
+                              recursive   = FALSE )
+            df
+        }
+
+        # Try to find <file>s in a folder named <schema>
+        schema_path_df <- lf(schema_path,file_pattern)
+        if (length(schema_path_df) > 0) {
+            csvfile_path <- schema_path
+            csvfile_pattern <- file_pattern
         } else {
-            # ..., then look for a file named <schema><sep><file>.csv
-            if (file.exists(fs::path(cfg_from_file_path,stringr::str_c(schema,file,sep=sep), ext="csv"))) {
-                csvfile <- fs::path(glue::glue("{schema}{sep}{file}"), ext="csv")
+            # ..., then look for file(s) named <schema>.<file>*.csv
+            schema_file_df <- lf(cfg_from_file_path,schema_file_pattern)
+
+            if (length(schema_file_df) > 0) {
+                csvfile_path <- cfg_from_file_path
+                csvfile_pattern <- schema_file_pattern
             } else {
-                # ..., then look for a file named <file>.csv
-                if (file.exists(fs::path(cfg_from_file_path,file, ext="csv"))) {
-                    csvfile <- fs::path(file, ext="csv")
+                # ..., then look for file(s) named <file>*.csv
+                file_df <- lf(cfg_from_file_path,file_pattern)
+
+                if (length(file_df) > 0) {
+                    csvfile_path <- cfg_from_file_path
+                    csvfile_pattern <- file_pattern
                 } else {
-                    csvfile <- NA_character_
                     stop(glue::glue("ERROR: File not found: {file}"))
                 }
             }
         }
 
-        #if (!exists("show_col_types") && is.na(show_col_types)) {
-        #    show_col_types = FALSE
-        #}
-        df <- readr::read_csv(fs::path(cfg_from_file_path,csvfile), show_col_types = FALSE)
+        df <- haywoodcc::merge_files( path    = csvfile_path,
+                                      pattern = csvfile_pattern,
+                                      show_col_types = FALSE )
     }
 
     if (sep != '.') names(df) <- gsub("\\.", sep, names(df))
@@ -304,27 +332,3 @@ getColleagueData <- function( file,
     getColleagueData <- df
 }
 
-high_school_graduation_dates <- function() {
-    institutions_attend <- getColleagueData( "INSTITUTIONS_ATTEND" ) %>%
-
-        # Keep HS graduation records
-        filter( INSTA.INST.TYPE == "HS",
-                INSTA.GRAD.TYPE == "Y" ) %>%
-        select( ID=INSTA.PERSON.ID,
-                Institution_Name=X.INSTA.INSTITUTION,
-                End_Dates=INSTA.END.DATES
-        ) %>%
-        collect() %>%
-
-        # For some reason, there are some records with multiple dates, keep the earliest one
-        mutate( End_Date = strsplit(End_Dates,", ") ) %>%
-        unnest( End_Date ) %>%
-        select( -End_Dates ) %>%
-        filter( !is.na(End_Date) ) %>%
-        mutate( End_Date = ymd(End_Date) ) %>%
-        group_by( ID ) %>%
-        summarize( HS_Grad_Date = min(End_Date) ) %>%
-        ungroup() %>%
-
-        distinct()
-}
