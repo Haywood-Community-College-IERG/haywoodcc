@@ -24,6 +24,7 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
 
     #cfg <- pkg.env$cfg
     cfg <- rlang::env_get(pkg.env, "cfg", default=NA)
+    print(glue::glue("cfg={cfg}"))
 
     if (is.na(cfg) || is.null(cfg) || reload) {
         # Use a cached version unless reload is specified.
@@ -145,10 +146,10 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
             }
         }
 
-        print(glue::glue("Loading configuration from [{cfg_full_path}]"))
-        #print(glue::glue("DEBUG: Current dir = [{getwd()}]"))
-
         if (fs::file_exists(cfg_full_path)) {
+            print(glue::glue("Loading configuration from [{cfg_full_path}]"))
+            #print(glue::glue("DEBUG: Current dir = [{getwd()}]"))
+
             cfg_l <- yaml::yaml.load_file(cfg_full_path)
 
             # print(glue::glue("DEBUG: sr(cfg_l) = [{str(cfg_l)}]"))
@@ -182,6 +183,8 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
             }
 
             rlang::env_poke(pkg.env, "cfg", cfg)
+        } else {
+            print(glue::glue("Configuration not found [{cfg_full_path}]"))
         }
     } else {
         cfg <- rlang::env_get(pkg.env, "cfg", default=NA)
