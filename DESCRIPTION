@@ -1,6 +1,6 @@
 Package: haywoodcc
 Title: Collection of functions for use at Haywood Community College (HCC)
-Version: 0.0.2022-05-09.1
+Version: 0.0.2022-05-09.2
 Authors@R: person("David", "Onder", email = "donder@haywood.edu", role = c("aut", "cre"))
 Description: Collection of functions to manage and process data at Haywood Community College (HCC). 
     These functions make it possible to manipulate data meeting the formatting as specified by the 

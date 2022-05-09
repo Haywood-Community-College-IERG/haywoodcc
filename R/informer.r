@@ -1,6 +1,5 @@
 pkg.env <- rlang::env(parent = rlang::empty_env())
 
-#pkg.env$cfg = NA_character_
 
 #' Load the YAML configuration file.
 #'
@@ -22,9 +21,8 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
     dflt_cfg_fn = "config.yml"
     dflt_cfg_path = "."
 
-    #cfg <- pkg.env$cfg
-    cfg <- rlang::env_get(pkg.env, "cfg", default=NA)
-    print(glue::glue("cfg={cfg}"))
+    cfg <- rlang::env_get(pkg.env, "cfg", default=NA, inherit=TRUE)
+    #print(glue::glue("cfg={cfg}"))
 
     if (is.na(cfg) || is.null(cfg) || reload) {
         # Use a cached version unless reload is specified.
@@ -146,32 +144,36 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
             }
         }
 
+        print(glue::glue("Loading configuration from [{cfg_full_path}]"))
+
         if (fs::file_exists(cfg_full_path)) {
-            print(glue::glue("Loading configuration from [{cfg_full_path}]"))
             #print(glue::glue("DEBUG: Current dir = [{getwd()}]"))
 
             cfg_l <- yaml::yaml.load_file(cfg_full_path)
 
-            # print(glue::glue("DEBUG: sr(cfg_l) = [{str(cfg_l)}]"))
+            # print(glue::glue("DEBUG: str(cfg_l) = [{str(cfg_l)}]"))
             # print(glue::glue("DEBUG: cfg_l = [{cfg_l}]"))
             # print(glue::glue("DEBUG: cfg_l$config          = [{cfg_l$config}]"))
+            # print(glue::glue("DEBUG: typeof(cfg_l) = [{typeof(cfg_l)}]"))
             # print(glue::glue("DEBUG: cfg_l$config$location = [{cfg_l$config$location}]"))
 
-            if ((typeof(cfg_l) == "list") || (cfg_l$config$location != "self")) {
+            if ("config" %in% names(cfg_l)) {
 
-                return(cfg_l)
-                if ((typeof(cfg_l) == "list") && (cfg_l$location == "self")) {
-                    print(glue::glue("ERROR config$location == self but no other YAML records"))
-                    return(NA)
-                } else {
-                    if (typeof(cfg_l) == "list") {
-                        cfg_full_path <- fs::path(cfg_l$location,cfg_fn)
-                    } else {
+                # print(glue::glue("DEBUG: cfg_l$config exists"))
+
+                if ("location" %in% names(cfg_l$config)) {
+                    if (cfg_l$config$location != "self") {
                         cfg_full_path <- fs::path(cfg_l$config$location,cfg_fn)
+                        print(glue::glue("Redirecting loading configuration from [{cfg_full_path}]"))
                     }
-                }
-
-                print(glue::glue("Redirecting loading configuration from [{cfg_full_path}]"))
+                } else {
+                    if ("location" %in% names(cfg_l)) {
+                        if (cfg_l$location != "self") {
+                            cfg_full_path <- fs::path(cfg_l$location,cfg_fn)
+                            print(glue::glue("Redirecting loading configuration from [{cfg_full_path}]"))
+                        }
+                    } # else self assumed
+                } # else self assumed
 
                 if (fs::file_exists(cfg_full_path)) {
                     cfg <- yaml::yaml.load_file(cfg_full_path)
@@ -183,13 +185,14 @@ getCfg <- function( cfg_full_path=NA_character_, cfg_fn=NA_character_, cfg_path=
             }
 
             rlang::env_poke(pkg.env, "cfg", cfg)
+            #assign("cfg", cfg, envir=pkg.env)
         } else {
             print(glue::glue("Configuration not found [{cfg_full_path}]"))
         }
-    } else {
-        cfg <- rlang::env_get(pkg.env, "cfg", default=NA)
+    } #else {
+        #cfg <- rlang::env_get(pkg.env, "cfg", default=NA)
         #print(glue::glue("Using cached cfg: {cfg_full_path}"))
-    }
+    #}
     getCfg <- cfg
 }
 
@@ -349,4 +352,8 @@ high_school_graduation_dates <- function() {
         ungroup() %>%
 
         distinct()
+}
+
+debug_test <- function() {
+    cfg <- getCfg()
 }
