@@ -8,6 +8,7 @@ ipeds_cohort(
   report_years,
   cohorts = c("FT", "PT", "TF", "TP", "RF", "RP"),
   use = "ipeds_cohorts",
+  ipeds_path,
   useonly = TRUE
 )
 }
@@ -22,7 +23,11 @@ RF = Full-time Returning, RP = Part-time Returning}
 ipeds_cohorts Use the local.ipeds_cohorts table
 STUDENT_TERMS Use the history.STUDENT_TERMS_Current view}
 
-\item{useonly}{Us the specified 'use' table only. Default is FALSE which means combine generated history.ipeds_cohorts with STUDENT_TERMS}
+\item{ipeds_path}{The path where ipeds_cohort.csv file is located.}
+
+\item{useonly}{Use the database cohort found in the table specified in the
+`use` parameter only. Default is FALSE which means combine data from
+the database table with the file ipeds_cohorts.csv.}
 }
 \description{
 Return a data from of the IPEDS cohort data. Data will come either from the file ipeds_cohorts.csv or

@@ -15,7 +15,7 @@ credential_seekers(
 
 \item{report_semesters}{Either a single semester abbreviation or a list of semester abbreviations. If unspecified, all semesters are returned.}
 
-\item{exlude_hs}{Should function exclude high school students from being included as credential seekers. Default is to include high school students.}
+\item{exclude_hs}{Should function exclude high school students from being included as credential seekers. Default is to include high school students.}
 }
 \description{
 All data comes from CCDW_HIST SQL Server database

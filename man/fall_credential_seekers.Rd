@@ -9,7 +9,7 @@ fall_credential_seekers(report_years, exclude_hs = FALSE)
 \arguments{
 \item{report_years}{The year of the fall term for the data}
 
-\item{exlude_hs}{Should function exclude high school students from being included as credential seekers. Default is to include high school students.}
+\item{exclude_hs}{Should function exclude high school students from being included as credential seekers. Default is to include high school students.}
 }
 \description{
 All data comes from CCDW_HIST SQL Server database
