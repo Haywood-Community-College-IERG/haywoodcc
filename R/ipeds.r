@@ -83,6 +83,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
                        Course_Section_ID = .data$STC.COURSE.SECTION,
                        Course_Status = .data$STC.STATUS ) %>%
         dplyr::collect() %>%
+        dplyr::mutate( Credit = as.number(.data$Credit) ) %>%
         dplyr::inner_join( terms %>%
                                dplyr::select(.data$Term_ID,
                                              .data$Term_Reporting_Year,
