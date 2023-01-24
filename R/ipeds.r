@@ -456,7 +456,7 @@ ipeds_cohort <- function( report_years,
             dplyr::select( .data$ID, .data$Term_ID, .data$Cohort, loc_cohort_types ) %>%
             dplyr::collect()
 
-        if (loc_cohort_types = c("Cohort")) {
+        if (loc_cohort_types == c("Cohort")) {
             ipeds_cohort_COLLEAGUE_COHORTS %<>%
                 dplyr::filter( !is.na(.data$Cohort) )
         }
