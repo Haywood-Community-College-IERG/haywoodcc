@@ -26,7 +26,12 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
                        Term_Reporting_Year = .data$Reporting_Year_FSS,
                        Academic_Year = .data$Reporting_Academic_Year_FSS ) %>%
         dplyr::collect() %>%
-        dplyr::mutate( Term_Reporting_Year = as.integer(.data$Term_Reporting_Year) - 1 )
+        dplyr::mutate( Term_Index = as.integer(.data$Term_Index),
+                       Term_Start_Date = as.Date(.data$Term_Start_Date),
+                       Term_End_Date = as.Date(.data$Term_End_Date),
+                       Term_Census_Date = as.Date(.data$Term_Census_Date),
+                       Term_Reporting_Year = as.integer(.data$Term_Reporting_Year) ) %>%
+        dplyr::mutate( Term_Reporting_Year = .data$Term_Reporting_Year - 1 )
 
     if (!anyNA(report_years)) {
         if (length(report_years) == 1) {
@@ -78,6 +83,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
                        Course_Section_ID = .data$STC.COURSE.SECTION,
                        Course_Status = .data$STC.STATUS ) %>%
         dplyr::collect() %>%
+        dplyr::mutate( Credit = as.numeric(.data$Credit) ) %>%
         dplyr::inner_join( terms %>%
                                dplyr::select(.data$Term_ID,
                                              .data$Term_Reporting_Year,
@@ -234,7 +240,12 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
                        Term_Reporting_Year = .data$Reporting_Year_FSS,
                        Academic_Year = .data$Reporting_Academic_Year_FSS ) %>%
         dplyr::collect() %>%
-        dplyr::mutate( Term_Reporting_Year = as.integer(.data$Term_Reporting_Year) - 1 )
+        dplyr::mutate( Term_Index = as.integer(.data$Term_Index),
+                       Term_Start_Date = as.Date(.data$Term_Start_Date),
+                       Term_End_Date = as.Date(.data$Term_End_Date),
+                       Term_Census_Date = as.Date(.data$Term_Census_Date),
+                       Term_Reporting_Year = as.integer(.data$Term_Reporting_Year) ) %>%
+        dplyr::mutate( Term_Reporting_Year = .data$Term_Reporting_Year - 1 )
 
     reporting_terms <- terms
 
@@ -271,7 +282,10 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
                        Student_Type_End_Date = .data$STU.TYPE.END.DATES,
                        .data$CurrentFlag,
                        .data$EffectiveDatetime ) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        dplyr::mutate( Student_Type_Date = as.Date(.data$Student_Type_Date),
+                       Student_Type_End_Date = as.Date(.data$Student_Type_End_Date),
+                       EffectiveDatetime = as.Date(.data$EffectiveDatetime) )
 
     students <- students_stu_types %>%
         dplyr::filter( .data$CurrentFlag == "Y" ) %>%
@@ -292,6 +306,9 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
                        Program_End_Date = .data$STPR.END.DATE,
                        .data$EffectiveDatetime ) %>%
         dplyr::collect() %>%
+        dplyr::mutate( Program_Start_Date = as.Date(.data$Program_Start_Date),
+                       Program_End_Date = as.Date(.data$Program_End_Date),
+                       EffectiveDatetime = as.Date(.data$EffectiveDatetime) ) %>%
         dplyr::inner_join( acad_programs, by="Program" ) %>%
         dplyr::mutate( Program_End_Date = dplyr::coalesce(.data$Program_End_Date,as.Date("9999-12-31")) )
 
@@ -308,6 +325,7 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
                        .data$EffectiveDatetime ) %>%
         dplyr::distinct() %>%
         dplyr::collect() %>%
+        dplyr::mutate( EffectiveDatetime = as.Date(.data$EffectiveDatetime) ) %>%
         dplyr::inner_join( acad_programs, by="Program" ) %>%
         dplyr::inner_join( student_programs__dates, by = c("ID", "Program", "EffectiveDatetime") ) %>%
         dplyr::select( -.data$EffectiveDatetime ) %>%
