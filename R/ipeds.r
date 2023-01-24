@@ -28,7 +28,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
         dplyr::collect() %>%
         dplyr::mutate( Term_Reporting_Year = as.integer(.data$Term_Reporting_Year) - 1 )
 
-    if (!is.na(report_years)) {
+    if (!anyNA(report_years)) {
         if (length(report_years) == 1) {
             reporting_terms <- terms %>%
                 dplyr::filter( .data$Term_Reporting_Year == report_years )
@@ -40,7 +40,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
         reporting_terms <- terms
     }
 
-    if (!is.na(report_semesters)) {
+    if (!anyNA(report_semesters)) {
         if (length(report_semesters) == 1) {
             reporting_terms %<>%
                 dplyr::filter( .data$Semester == report_semesters )
@@ -183,7 +183,7 @@ term_enrollment <- function( report_years = NA_integer_, report_semesters = NA_c
     #
     # Take term load table and reduce to the reporting terms
     #
-    if (!is.na(report_years)) {
+    if (!anyNA(report_years)) {
         sac_report_load_by_term <- sac_load_by_term %>%
             dplyr::inner_join( reporting_terms %>% dplyr::select( .data$Term_ID,
                                                                   .data$Term_Reporting_Year ),
@@ -238,7 +238,7 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
 
     reporting_terms <- terms
 
-    if (!is.na(report_years)) {
+    if (!anyNA(report_years)) {
         if (length(report_years) == 1) {
             reporting_terms %<>%
                 dplyr::filter( .data$Term_Reporting_Year == report_years )
@@ -248,7 +248,7 @@ credential_seekers <- function( report_years = NA_integer_, report_semesters = N
         }
     }
 
-    if (!is.na(report_semesters)) {
+    if (!anyNA(report_semesters)) {
         if (length(report_semesters) == 1) {
             reporting_terms %<>%
                 dplyr::filter( .data$Semester == report_semesters )
@@ -370,6 +370,8 @@ fall_credential_seekers <- function( report_years, exclude_hs = FALSE ) {
 #' @param cohorts Which cohorts to include in data frame. FT = Full-time First-time, PT = Part-time First-time,
 #'                TF = Full-time Transfer, TP = Part-time Transfer,
 #'                RF = Full-time Returning, RP = Part-time Returning
+#' @param cohort_types Which cohort fields to include in data frame. Default is Cohort only. Choose from
+#'                      "Cohort", "OM_Cohort", "Term_Cohort".
 #' @param use Which dataset should be used for cohorts from Colleague
 #'            ipeds_cohorts Use the local.ipeds_cohorts table
 #'            STUDENT_TERMS Use the history.STUDENT_TERMS_Current view
@@ -386,6 +388,7 @@ fall_credential_seekers <- function( report_years, exclude_hs = FALSE ) {
 #'
 ipeds_cohort <- function( report_years,
                           cohorts=c("FT","PT","TF","TP","RF","RP"),
+                          cohort_types = c("Cohort") # Also allows "OM_Cohort","Term_Cohort"
                           use = "ipeds_cohorts",
                           ipeds_path,
                           useonly = TRUE ) {
@@ -398,6 +401,11 @@ ipeds_cohort <- function( report_years,
     if (purrr::has_element(cohorts,"RF")) report_cohorts <- c(report_cohorts, stringr::str_c(report_years,"RF"))
     if (purrr::has_element(cohorts,"RP")) report_cohorts <- c(report_cohorts, stringr::str_c(report_years,"RP"))
     report_cohorts <- report_cohorts[-1]
+
+    loc_cohort_types <- c("Cohort")
+    if (!purrr::has_element(cohort_types,"Cohort")) loc_cohort_types <- loc_cohort_types[-1]
+    if (purrr::has_element(cohort_types,"OM_Cohort")) loc_cohort_types <- c(loc_cohort_types, "OM_Cohort")
+    if (purrr::has_element(cohort_types,"Term_Cohort")) loc_cohort_types <- c(loc_cohort_types, "Term_Cohort")
 
     if (missing(ipeds_path)) {
         warning("Parameter ipeds_path not provided. Using local directory.")
@@ -420,14 +428,20 @@ ipeds_cohort <- function( report_years,
             dplyr::distinct() %>%
             dplyr::collect() %>%
             dplyr::mutate( Term_ID = stringr::str_c(substring(.data$Cohort,1,4),"FA") )
+
     } else {
         if (toupper(use) != "IPEDS_COHORTS") {
             warning(str_c("Invallid use value (",use,"), defaulting to 'ipeds_cohorts'"))
         }
         ipeds_cohort_COLLEAGUE_COHORTS <- ccdwr::getColleagueData( "ipeds_cohorts", schema="local", version="latest" ) %>%
-            dplyr::select( .data$ID, .data$Term_ID, .data$Cohort ) %>%
-            dplyr::filter( !is.na(.data$Cohort) ) %>%
+            tibble::as_tibble() %>%
+            dplyr::select( .data$ID, .data$Term_ID, .data$Cohort, loc_cohort_types ) %>%
             dplyr::collect()
+
+        if (loc_cohort_types = c("Cohort")) {
+            ipeds_cohort_COLLEAGUE_COHORTS %<>%
+                dplyr::filter( !is.na(.data$Cohort) )
+        }
     }
 
     if (useonly) {
