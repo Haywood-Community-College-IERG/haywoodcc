@@ -406,7 +406,7 @@ fall_credential_seekers <- function( report_years, exclude_hs = FALSE ) {
 #'
 ipeds_cohort <- function( report_years,
                           cohorts=c("FT","PT","TF","TP","RF","RP"),
-                          cohort_types = c("Cohort") # Also allows "OM_Cohort","Term_Cohort"
+                          cohort_types = c("Cohort"), # Also allows "OM_Cohort","Term_Cohort"
                           use = "ipeds_cohorts",
                           ipeds_path,
                           useonly = TRUE ) {
